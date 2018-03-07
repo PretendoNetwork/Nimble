@@ -1,0 +1,11 @@
+*.bin
+*.elf
+*.o
+*.d
+installer/arm_kernel/
+installer/include/iosuhax*.h
+installer/lib/libiosuhax.a
+installer/arm_user/arm_user_bin.h
+installer/payload/
+wupserver/wupserver_bin.h
+installer/build/.map

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Pretendo Network Installer BETA</name>
+  <coder>SuperMarioDaBom</coder>
+  <version>0.0.1Beta</version>
+  <release_date>TBD</release_date>
+  <short_description>Install/Uninstall Pretendo Network onto your Wii U.</short_description> 
+  <long_description>Using this tool, you can quickly swap between using the official Nintendo Network and Pretendo Network.
+    This is an edited version of the Haxchi installer originally by FIX94, tweaked by jam1garner.
+  </long_description> 
+</app>
