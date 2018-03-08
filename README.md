@@ -18,6 +18,7 @@ Some other dependencies may be needed that I can't remember lol
 ## Credit
 
 This installer is based off of the haxchi installer originally by FIX94, and tweaked by jam1garner.
+[(See here)](https://github.com/jam1garner/haxchi)
 
 Other credits:
 
