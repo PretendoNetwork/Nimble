@@ -1,25 +1,23 @@
-# Pretendo Installer (Wii U)
+# Pretendo Installer (for the WiiU)
 
-This is the official Pretendo installer for Wii U.
-Note that there is also a sample xml and icon somewhere in the repo
+[![N|Solid](https://camo.githubusercontent.com/b98196c2347796d66fa669e8510749665ec80ba0/68747470733a2f2f692e696d6775722e636f6d2f5839346237574b2e706e67)](https://pretendo.cc)
 
-## Usage
 
-Just run this in the hbl
 
-## Dependencies
+This is the official Pretendo Installer for the Wii U. It will patch your console IOSU (ARM microkernel) temporarily to modify Nintendo URLs to Pretendo URLs.
 
-To properly compile this project yourself you will need the latest libiosuhax from dimok789's github. (May already be included)
-Two certificates need to be put in ./installer/data:
-	- The original wii u common cert (named oldcert.der)
-	- The cert from fiddler (named newcert.der)
-Some other dependencies may be needed that I can't remember lol
+  - Lightweight
+  - Vocabulary everyone might not understand
+  - Magic
 
-## Credit
+# Compilation
 
-This installer is based off of the haxchi installer originally by FIX94, and tweaked by jam1garner.
-[(See here)](https://github.com/jam1garner/haxchi)
+  - [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
+  - [libutils](https://github.com/Maschell/libutils/)
+  - devkitPro (PPC and ARM)
+  
+# Credits
 
-Other credits:
-
-smea, plutoo, yellows8, naehrwert, derrek and dimok
+  - Pretendo Network team
+  - NexoCube for making the installer
+  - dimok789 for the infinite loading patch

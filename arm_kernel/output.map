@@ -1,0 +1,73 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAMX             0x0000000008134100 0x000000000000bf00 xr
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000008134100      0x270
+ build/crt0.o(.init)
+ .init          0x0000000008134100        0x4 build/crt0.o
+ *(.text)
+ .text          0x0000000008134104        0x0 build/crt0.o
+ .text          0x0000000008134104      0x218 build/main.o
+                0x0000000008134120                _main
+ .text          0x000000000813431c       0x54 build/utils.o
+                0x000000000813431c                m_memcpy
+                0x0000000008134338                m_memset
+                0x0000000008134350                s_strlen
+
+.glue_7         0x0000000008134370        0x0
+ .glue_7        0x0000000008134370        0x0 linker stubs
+
+.glue_7t        0x0000000008134370        0x0
+ .glue_7t       0x0000000008134370        0x0 linker stubs
+
+.vfp11_veneer   0x0000000008134370        0x0
+ .vfp11_veneer  0x0000000008134370        0x0 linker stubs
+
+.v4_bx          0x0000000008134370        0x0
+ .v4_bx         0x0000000008134370        0x0 linker stubs
+
+.iplt           0x0000000008134370        0x0
+ .iplt          0x0000000008134370        0x0 build/crt0.o
+
+.rodata         0x0000000008134370      0x100
+ *(.rodata*)
+ .rodata        0x0000000008134370      0x100 build/main.o
+LOAD build/main.o
+LOAD build/utils.o
+OUTPUT(arm_kernel.elf elf32-bigarm)
+
+.rel.dyn        0x0000000008134470        0x0
+ .rel.iplt      0x0000000008134470        0x0 build/crt0.o
+
+.data           0x0000000000000000        0x0
+ .data          0x0000000000000000        0x0 build/crt0.o
+ .data          0x0000000000000000        0x0 build/main.o
+ .data          0x0000000000000000        0x0 build/utils.o
+
+.igot.plt       0x0000000000000000        0x0
+ .igot.plt      0x0000000000000000        0x0 build/crt0.o
+
+.bss            0x0000000000000000        0x0
+ .bss           0x0000000000000000        0x0 build/crt0.o
+ .bss           0x0000000000000000        0x0 build/main.o
+ .bss           0x0000000000000000        0x0 build/utils.o
+
+.ARM.attributes
+                0x0000000000000000       0x23
+ .ARM.attributes
+                0x0000000000000000       0x17 build/crt0.o
+ .ARM.attributes
+                0x0000000000000017       0x27 build/main.o
+ .ARM.attributes
+                0x000000000000003e       0x27 build/utils.o
+
+.comment        0x0000000000000000       0x22
+ .comment       0x0000000000000000       0x22 build/main.o
+                                         0x23 (size before relaxing)
+ .comment       0x0000000000000022       0x23 build/utils.o
