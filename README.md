@@ -4,20 +4,19 @@
 
 
 
-This is the official Pretendo Installer for the Wii U. It will patch your console IOSU (ARM microkernel) temporarily to modify Nintendo URLs to Pretendo URLs.
+This is the official Pretendo Installer for the Wii U. It will patch your console's IOSU (ARM microkernel) temporarily (goes away after a reboot) to modify Nintendo URLs to Pretendo URLs.
 
-  - Lightweight
-  - Vocabulary everyone might not understand
-  - Magic
+# Features
+- Pretty lightweight
+- Contains vocabulary that might not be understood
+- Uses magic to do what it does
 
-# Compilation
-
-  - [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
-  - [libutils](https://github.com/Maschell/libutils/)
-  - devkitPro (PPC and ARM)
+# Dependencies
+- [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
+- [libutils](https://github.com/Maschell/libutils/)
+- devkitPro (PPC and ARM)
   
 # Credits
-
-  - Pretendo Network team
-  - NexoCube for making the installer
-  - dimok789 for the infinite loading patch
+- Pretendo Network team
+- NexoCube for making the installer
+- dimok789 for the infinite loading patch
