@@ -7,11 +7,9 @@ extern "C" {
 
 void deinitScreen();
 void initScreen();
-void printf_(const char *a, ...);
+void printf_(const char *a, u32 val);
 void clearScreen();
 void flipBuffers();
-
-
 
 
 #ifdef __cplusplus

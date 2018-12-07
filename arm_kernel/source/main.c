@@ -84,8 +84,8 @@ int _main()
 	*(volatile u32*)(0x05054D6C - 0x05000000 + 0x081C0000) = 0xE3A00000;    // mov r0, 0
 	*(volatile u32*)(0x05054D70 - 0x05000000 + 0x081C0000) = 0xE12FFF1E;    // bx lr
 	*(volatile u32*)(0x05052A90 - 0x05000000 + 0x081C0000) = 0xe3a00000;    // mov r0, #0
-    *(volatile u32*)(0x05052A94 - 0x05000000 + 0x081C0000) = 0xe12fff1e;    // bx lr
-    *(volatile u32*)(0x05014CAC - 0x05000000 + 0x081C0000) = 0x20004770; 	// mov r0, #0; bx lr
+	*(volatile u32*)(0x05052A94 - 0x05000000 + 0x081C0000) = 0xe12fff1e;    // bx lr
+	*(volatile u32*)(0x05014CAC - 0x05000000 + 0x081C0000) = 0x20004770; 	// mov r0, #0; bx lr
 	*(volatile u32*)(0x05052C44 - 0x05000000 + 0x081C0000) = 0xE3A00000; 	// mov r0, #0
 	*(volatile u32*)(0x05052C48 - 0x05000000 + 0x081C0000) = 0xE12FFF1E; 	// bx lr
 	*(volatile u32*)(0x0500A818 - 0x05000000 + 0x081C0000) = 0x20002000; 	// mov r0, #0; mov r0, #0
