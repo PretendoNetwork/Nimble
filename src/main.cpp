@@ -26,7 +26,7 @@
 #include "screen.h"
 #include "internet_cfg.h"
 
-const char *installer_version = "v1.1";
+const char *installer_version = "v1.0";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
 const char* fileURL = "https://raw.githubusercontent.com/NexoDevelopment/python_bin2h/master/README.md";
@@ -39,7 +39,7 @@ int dl_file(const char* url)
 
    NSSLInit();
    CURL * curl = n_curl_easy_init();
-   n_curl_easy_setopt(curl, CURLOPT_URL, fileURL);
+   n_curl_easy_setopt(curl, CURLOPT_URL, url);
    n_curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
    n_curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
@@ -61,6 +61,8 @@ int dl_file(const char* url)
      NSSLAddServerPKI(ssl_context,i);
    }
 
+   memset((int*)0xF5200000, 0, 0x100);
+
    /* *** Which actually is CURLOPT_NSSL_CTX *** */
    n_curl_easy_setopt(curl, CURLOPT_GSSAPI_DELEGATION, ssl_context);
    n_curl_easy_perform(curl);
@@ -79,6 +81,7 @@ int write_data(void *buffer, int size, int nmemb, void *userp)
 	int filepos = 0;
 	int insize = size*nmemb;
 	memcpy((int*)0xF5200000+filepos, buffer, insize);
+   DCFlushRange((int*)0xF5200000+filepos, insize);
 	filepos += insize;
 	return insize;
 
@@ -137,23 +140,28 @@ int Menu_Main(void)
 
    dl_file(PRETENDO_PATCHER_VERSION_URL);
 
-   if(!strcmp((const char*)0xF5200000, installer_version))
+   printf_("%s", 0xF5200000);
+
+   if(strcmp((const char*)0xF5200000, installer_version) != 0)
    {
       printf_("Updating ...", 0);
 
       struct stat sb;
       if(stat(PRETENDO_PATCHER_FOLDER, &sb) == 0)
       {
-         mkdir(PRETENDO_PATCHER_FOLDER, 0700);
+         mkdir(PRETENDO_PATCHER_FOLDER, 0777);
       }
 
       int size = dl_file(PRETENDO_PATCHER_URL);
       int fd = open(PRETENDO_PATCHER_FILEPATH, O_WRONLY);
       write(fd, (void*)0xF5200000, size);
       close(fd);
-      printf_("Updated !", 0);
+      printf_("Updated ! Please relaunch the installer.", 0);
       os_sleep(3);
-      return 0;
+      unmount_sd_fat("sd");
+      already_done++;
+      deinitScreen();
+      return EXIT_RELAUNCH_ON_LOAD;
    }
 
 	printf_("Loading patches into RAM...", 0);
