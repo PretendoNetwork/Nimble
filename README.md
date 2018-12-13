@@ -4,7 +4,7 @@
 
 
 
-This is the official Pretendo Installer for the Wii U. It will patch your consoles IOSU (ARM microkernel) temporarily (goes away after a reboot) to modify Nintendo URLs to Pretendo URLs.
+This is the official Pretendo Installer for the Wii U. It will patch your console's IOSU (ARM microkernel) temporarily (goes away after a reboot) to modify Nintendo URLs to Pretendo URLs.
 
 # Features
 - Pretty lightweight
