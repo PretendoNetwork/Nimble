@@ -15,8 +15,18 @@ This is the official Pretendo Installer for the Wii U. It will patch your consol
 - [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
 - [libutils](https://github.com/Maschell/libutils/)
 - devkitPro (PPC and ARM)
+
+You need to set **devkitPro\msys\bin** into your PATH for **xxd.exe** usage.
   
 # Credits
 - Pretendo Network team
 - NexoCube for making the installer
 - dimok789 for the infinite loading patch
+- Kinnay for the No-SSL patch
+
+# TODO
+
+- Add an option to run it with all patches w/out SSL Patch
+- Add an option to run it with all patches w/ SSL Patch
+- Add an option to run it with no patches w/ SSL patch
+- Make a working auto-updater (old-one supported HTTPS & Proxies but couldn't write to the SD Card)

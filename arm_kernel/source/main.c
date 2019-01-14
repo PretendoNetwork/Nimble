@@ -97,6 +97,9 @@ int _main()
 	*(volatile u32*)(0x04001BB0 - 0x04000000 + 0x08280000) = 0xE3A00000; 	// mov r0, #0
 	*(volatile u32*)(0x04001D40 - 0x04000000 + 0x08280000) = 0xE3A00000; 	// mov r0, #0
 
+	// Kinnay SSL Patch
+	*(volatile u32*)(0x12BD9E84) = 0xE3A00001; 	// mov r0, #1
+
 	int patch_num = *(int*)0x5080B000;
 	URL_Patch* curr_patch = (URL_Patch*)0x5080C000; 
 

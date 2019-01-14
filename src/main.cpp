@@ -136,12 +136,14 @@ int Menu_Main(void)
 
 	clearScreen();
 
-   printf_("Checking for updates ...", 0);
+//   printf_("Checking for updates ...", 0);
 
-   dl_file(PRETENDO_PATCHER_VERSION_URL);
+//   dl_file(PRETENDO_PATCHER_VERSION_URL);
 
-   printf_("%s", 0xF5200000);
+//   printf_("%s", 0xF5200000);
 
+   /* *** Removed the auto-updater *** */
+/*
    if(strcmp((const char*)0xF5200000, installer_version) != 0)
    {
       printf_("Updating ...", 0);
@@ -164,6 +166,8 @@ int Menu_Main(void)
       return EXIT_RELAUNCH_ON_LOAD;
    }
 
+*/
+
 	printf_("Loading patches into RAM...", 0);
 
 	/* *** OSEffectiveToPhysical(0x10000000) = 0x50000000 *** */
@@ -178,6 +182,7 @@ int Menu_Main(void)
 
 	printf_("Done.", 0);
 	printf_("Performing Kernel Exploit and patching IOSU...", 0);
+	printf_("Thanks to Kinnay for the No-SSL patch !", 0);
 
 	// TODO: Actual Error Handling because IOS_Open can fail sometimes /shrug
 	int ret = IOSU_Kernel_Exploit();
@@ -185,6 +190,7 @@ int Menu_Main(void)
 
 	printf_("0x%08X", ret);
 	printf_("Exiting ...", 0);
+
 	os_sleep(2);
 
 	/* *** set the done flag and exit *** */
