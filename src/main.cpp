@@ -26,7 +26,7 @@
 #include "screen.h"
 #include "internet_cfg.h"
 
-const char *installer_version = "v1.0";
+const char *installer_version = "v1.2";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
 const char* fileURL = "https://raw.githubusercontent.com/NexoDevelopment/python_bin2h/master/README.md";
