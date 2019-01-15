@@ -14,6 +14,7 @@ This is the official Pretendo Installer for the Wii U. It will patch your consol
 # Dependencies
 - [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
 - [libutils](https://github.com/Maschell/libutils/)
+- [libgui](https://github.com/Maschell/libgui/) + all the portlibs going with it !
 - devkitPro (PPC and ARM)
 
 You need to set **devkitPro\msys\bin** into your PATH for **xxd.exe** usage.

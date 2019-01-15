@@ -20,17 +20,21 @@
 #include <libutils/network/FileDownloader.h>
 #include <libutils/fs/FSUtils.h>
 #include <libutils/fs/sd_fat_devoptab.h>
+#include <libgui/gui/GuiSound.h>
 #include "main.h"
 #include "patch_list.h"
 #include "exploit.h"
 #include "screen.h"
 #include "internet_cfg.h"
 
-const char *installer_version = "v1.2.1";
+const char *installer_version = "v1.3";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
-const char* fileURL = "https://raw.githubusercontent.com/NexoDevelopment/python_bin2h/master/README.md";
-const char* filePath = "sd:/index_html.bin";
+const char* fileURL_bgm = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoMusic.mp3";
+const char* filePath_bgm = "sd:/PretendoMusic.mp3";
+
+const char* fileURL_info = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoInfo.dat";
+const char* filePath_info = "sd:/PretendoInfo.dat";
 
 static int already_done = 0;
 
@@ -78,6 +82,8 @@ int dl_file(const char* url)
      NSSLAddServerPKI(ssl_context,i);
    }
 
+   volatile int *value = (int*)0xF5200000-4;
+   *value = 0;
    memset((int*)0xF5200000, 0, 0x100);
 
    /* *** Which actually is CURLOPT_NSSL_CTX *** */
@@ -88,21 +94,36 @@ int dl_file(const char* url)
    NSSLFinish();
    n_curl_easy_cleanup(curl);
 
-   return *(int*)0xF5200000-4;
+   return *value;
 
 }
 
 int write_data(void *buffer, int size, int nmemb, void *userp)
 {
-
+	volatile int *value = (int*)0xF5200000-4;
 	int filepos = 0;
 	int insize = size*nmemb;
 	memcpy((int*)0xF5200000+filepos, buffer, insize);
 	DCFlushRange((int*)0xF5200000+filepos, insize);
 	filepos += insize;
+	*value += insize;
 	return insize;
 
 }
+
+typedef struct PretendoUpdate
+{
+	char version[8];
+	char music_version[8];
+
+} PretendoUpdate;
+
+typedef struct PretendoInfo
+{
+	char music_version[8];
+	char padding[0x100-8]; // For additional info later on
+} PretendoInfo;
+
 
 int Menu_Main(void)
 {
@@ -130,7 +151,59 @@ int Menu_Main(void)
 		return 0;
 	}
 
+	GuiSound *bgm_obj = new GuiSound(filePath_bgm);
+	bgm_obj->Play();
+
 	initScreen();
+
+	printf_("Checking for the latest version and music ...", 0);
+
+	dl_file(fileURL_info);
+
+	PretendoUpdate *updt = (PretendoUpdate*)0xF5200000;
+
+	/* *** Checking the latest version *** */
+	int ret;
+	ret = strcmp((char*)&updt->version, installer_version);
+	if(ret == 0)
+	{
+		printf_("You are using the latest version of the Installer.", 0);
+	} else 
+	{
+		printf_("New version: %s", (u32)&updt->version);
+		printf_("Please update from the official Github page.", 0);
+	}
+
+	/* *** Checking the latest music *** */
+	PretendoInfo *info = (PretendoInfo*)OSAllocFromSystem(sizeof(PretendoInfo), 4);
+	memset(info, 0, sizeof(PretendoInfo));
+
+	int f = open(filePath_info, O_RDWR);
+	read(f, info, sizeof(PretendoInfo));
+
+	ret = strcmp((char*)&updt->music_version, (const char*)&info->music_version);
+	if(ret == 0)
+	{
+		printf_("You have the latest music", 0);
+	} else
+	{
+		printf_("Downloading the latest music ..", 0);
+
+		int music_size = dl_file(fileURL_bgm);
+		int fbgm = open(filePath_bgm, O_WRONLY);
+		write(fbgm, (void*)0xF5200000, music_size);
+		close(fbgm);
+
+		printf_("Done.", 0);
+	}
+
+	strcpy((char*)&info->music_version, (const char*)&updt->music_version);
+	write(f, info, sizeof(PretendoInfo));
+	close(f);
+
+	os_sleep(2);
+
+	clearScreen();
 	printf_("Welcome to the Pretendo Installer %s", (u32)installer_version);
 	printf_("This installer will patch your Console temporarily.", 0);
 	printf_("", 0);
@@ -140,7 +213,7 @@ int Menu_Main(void)
 
 	while(1)
 	{	
-		int ret = wait_for_vpad_input();
+		ret = wait_for_vpad_input();
 
 		if(ret & VPAD_BUTTON_A)
 		{
@@ -180,7 +253,7 @@ int Menu_Main(void)
 	printf_("Thanks to Kinnay for the No-SSL patch !", 0);
 
 	// TODO: Actual Error Handling because IOS_Open can fail sometimes /shrug
-	int ret = IOSU_Kernel_Exploit();
+	ret = IOSU_Kernel_Exploit();
 	os_sleep(1);
 
 	printf_("0x%08X", ret);
