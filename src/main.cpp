@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <dynamic_libs/ax_functions.h>
 #include <dynamic_libs/os_functions.h>
 #include <dynamic_libs/fs_functions.h>
 #include <dynamic_libs/gx2_functions.h>
@@ -30,7 +31,7 @@
 const char *installer_version = "v1.3";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
-const char* fileURL_bgm = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoMusic.mp3";
+const char* fileURL_bgm = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoMusic.ogg";
 const char* filePath_bgm = "sd:/PretendoMusic.mp3";
 
 const char* fileURL_info = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoInfo.dat";
@@ -84,14 +85,12 @@ int dl_file(const char* url)
 
    volatile int *value = (int*)0xF5200000-4;
    *value = 0;
-   memset((int*)0xF5200000, 0, 0x100);
 
    /* *** Which actually is CURLOPT_NSSL_CTX *** */
    n_curl_easy_setopt(curl, CURLOPT_GSSAPI_DELEGATION, ssl_context);
    n_curl_easy_perform(curl);
 
    NSSLDestroyContext(ssl_context);
-   NSSLFinish();
    n_curl_easy_cleanup(curl);
 
    return *value;
@@ -101,11 +100,10 @@ int dl_file(const char* url)
 int write_data(void *buffer, int size, int nmemb, void *userp)
 {
 	volatile int *value = (int*)0xF5200000-4;
-	int filepos = 0;
+	int filepos = *value;
 	int insize = size*nmemb;
-	memcpy((int*)0xF5200000+filepos, buffer, insize);
-	DCFlushRange((int*)0xF5200000+filepos, insize);
-	filepos += insize;
+	memcpy((int*)0x20000000+filepos, buffer, insize);
+	DCFlushRange((int*)0x20000000+filepos, insize);
 	*value += insize;
 	return insize;
 
@@ -130,6 +128,7 @@ int Menu_Main(void)
 
 
 	InitOSFunctionPointers();
+	InitAXFunctionPointers();
 	InitSysFunctionPointers();
 	InitSocketFunctionPointers();
 	InitFSFunctionPointers();
@@ -151,16 +150,39 @@ int Menu_Main(void)
 		return 0;
 	}
 
-	GuiSound *bgm_obj = new GuiSound(filePath_bgm);
-	bgm_obj->Play();
+	memset((void*)0x20000000, 0, 0x10000);
+	DCFlushRange((void*)0x20000000, 0x10000);
 
 	initScreen();
+
+	GuiSound * bgm_sound;
+
+	u8 *buf;
+	u32 size = 0;
+		
+	FSUtils::LoadFileToMem(filePath_bgm, &buf, &size);
+	DCFlushRange(buf, size);
+
+	asm("eieio; isync; sync");
+
+	if(buf && size)
+	{
+
+		bgm_sound = new GuiSound(buf, size);
+		bgm_sound->SetLoop(false);
+		bgm_sound->Play();
+		bgm_sound->SetVolume(50);
+
+	}
+
 
 	printf_("Checking for the latest version and music ...", 0);
 
 	dl_file(fileURL_info);
 
-	PretendoUpdate *updt = (PretendoUpdate*)0xF5200000;
+	PretendoUpdate *updt = (PretendoUpdate*)0x20000000;
+	char * mver = (char*)malloc(16);
+	memcpy(mver, &updt->music_version, 4);
 
 	/* *** Checking the latest version *** */
 	int ret;
@@ -175,33 +197,51 @@ int Menu_Main(void)
 	}
 
 	/* *** Checking the latest music *** */
-	PretendoInfo *info = (PretendoInfo*)OSAllocFromSystem(sizeof(PretendoInfo), 4);
-	memset(info, 0, sizeof(PretendoInfo));
 
-	int f = open(filePath_info, O_RDWR);
-	read(f, info, sizeof(PretendoInfo));
+	u8 * buff;
+	u32 sizee;
+	FSUtils::LoadFileToMem(filePath_info, &buff, &sizee);
+	PretendoInfo *info;
 
-	ret = strcmp((char*)&updt->music_version, (const char*)&info->music_version);
-	if(ret == 0)
+	if(size != 0)
 	{
-		printf_("You have the latest music", 0);
-	} else
-	{
-		printf_("Downloading the latest music ..", 0);
+
+		info = (PretendoInfo*)buff;
+
+		ret = strcmp((char*)&updt->music_version, (const char*)&info->music_version);
+		if(ret == 0)
+		{
+			printf_("You have the latest music", 0);
+		} else
+		{
+			printf_("Downloading the latest music ..", 0);
+
+			int music_size = dl_file(fileURL_bgm);
+			FSUtils::saveBufferToFile(filePath_bgm, (void*)0x20000000, music_size);
+
+			printf_("Done.", 0);
+		}
+	} else {
+
+		info = (PretendoInfo*)malloc(sizeof(PretendoInfo));
+		printf_("Downloading the latest music because you don't have metadata.", 0);
 
 		int music_size = dl_file(fileURL_bgm);
-		int fbgm = open(filePath_bgm, O_WRONLY);
-		write(fbgm, (void*)0xF5200000, music_size);
-		close(fbgm);
+		FSUtils::saveBufferToFile(filePath_bgm, (void*)0x20000000, music_size);
 
 		printf_("Done.", 0);
 	}
 
-	strcpy((char*)&info->music_version, (const char*)&updt->music_version);
-	write(f, info, sizeof(PretendoInfo));
-	close(f);
+	memcpy(info, mver, 8);
+	memset((int*)info+4, 0, sizeof(PretendoInfo));
+
+	DCFlushRange(info, 256);
+
+	FSUtils::saveBufferToFile(filePath_info, info, sizeof(PretendoInfo));
 
 	os_sleep(2);
+
+	/* *** Main program *** */
 
 	clearScreen();
 	printf_("Welcome to the Pretendo Installer %s", (u32)installer_version);
