@@ -31,11 +31,11 @@
 const char *installer_version = "v1.3";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
-const char* fileURL_bgm = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoMusic.ogg";
+const char* fileURL_bgm = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoMusic.mp3";
 const char* filePath_bgm = "sd:/PretendoMusic.mp3";
 
 const char* fileURL_info = "https://raw.githubusercontent.com/PretendoNetwork/Pretendo-Network-Installer-Wii-U-/master/PretendoInfo.dat";
-const char* filePath_info = "sd:/PretendoInfo.dat";
+const char* filePath_info = "sd:/PretendoInfo.bin";
 
 static int already_done = 0;
 
@@ -177,6 +177,7 @@ int Menu_Main(void)
 
 
 	printf_("Checking for the latest version and music ...", 0);
+	printf_("", 0);
 
 	dl_file(fileURL_info);
 
@@ -211,34 +212,40 @@ int Menu_Main(void)
 		ret = strcmp((char*)&updt->music_version, (const char*)&info->music_version);
 		if(ret == 0)
 		{
-			printf_("You have the latest music", 0);
+
+			printf_("You have the latest music.", 0);
+
 		} else
+
 		{
-			printf_("Downloading the latest music ..", 0);
+			printf_("Downloading the latest music .....", 0);
 
 			int music_size = dl_file(fileURL_bgm);
 			FSUtils::saveBufferToFile(filePath_bgm, (void*)0x20000000, music_size);
 
-			printf_("Done.", 0);
 		}
-	} else {
 
-		info = (PretendoInfo*)malloc(sizeof(PretendoInfo));
-		printf_("Downloading the latest music because you don't have metadata.", 0);
+	} else
+
+	{
+		info = (PretendoInfo*)OSAllocFromSystem(sizeof(PretendoInfo), 4);
+		printf_("Downloading music .....", 0);
 
 		int music_size = dl_file(fileURL_bgm);
 		FSUtils::saveBufferToFile(filePath_bgm, (void*)0x20000000, music_size);
 
-		printf_("Done.", 0);
 	}
 
-	memcpy(info, mver, 8);
-	memset((int*)info+4, 0, sizeof(PretendoInfo));
+	if((u32)info != (u32)buff)
+	{
+		memcpy(info, mver, 8);
+		memset((int*)info+4, 0, sizeof(PretendoInfo)-4);
 
-	DCFlushRange(info, 256);
+		FSUtils::saveBufferToFile(filePath_info, info, sizeof(PretendoInfo));
+	}
 
-	FSUtils::saveBufferToFile(filePath_info, info, sizeof(PretendoInfo));
-
+	printf_("", 0);
+	printf_("All good. Starting the Pretendo Installer ...", 0);
 	os_sleep(2);
 
 	/* *** Main program *** */
@@ -278,11 +285,11 @@ int Menu_Main(void)
 
 	printf_("Loading patches into RAM...", 0);
 
-	/* *** OSEffectiveToPhysical(0x10000000) = 0x50000000 *** */
+	/* *** OSEffectiveToPhysical(0x10000000) = 0x50000000 *** We are RAMPID 7 */
 	*(int*)0x1080B000 = sizeof(patches) / sizeof(URL_Patch); 
 	void *patch_mem = (int*)0x1080C000;
 	
-	/* *** memcpy() and flush our patches *** */
+	/* *** memcpy() and flush cache for our patches *** */
 	memcpy(patch_mem, patches, sizeof(patches));
 	DCFlushRange((void*)0x1080B000, sizeof(patches) + 0x1000);
 
