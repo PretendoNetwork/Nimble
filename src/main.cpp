@@ -26,13 +26,30 @@
 #include "screen.h"
 #include "internet_cfg.h"
 
-const char *installer_version = "v1.2";
+const char *installer_version = "v1.2.1";
 #define EXIT_RELAUNCH_ON_LOAD 0xFFFFFFFD
 
 const char* fileURL = "https://raw.githubusercontent.com/NexoDevelopment/python_bin2h/master/README.md";
 const char* filePath = "sd:/index_html.bin";
 
 static int already_done = 0;
+
+int wait_for_vpad_input()
+{
+	VPADData vpad;
+	s32 err_h;
+
+	while(1)
+	{
+		VPADRead(0, &vpad, 1, &err_h);
+		if(vpad.btns_h)
+		{
+			return vpad.btns_h;
+		}
+	}
+
+	
+}
 
 int dl_file(const char* url)
 {
@@ -81,7 +98,7 @@ int write_data(void *buffer, int size, int nmemb, void *userp)
 	int filepos = 0;
 	int insize = size*nmemb;
 	memcpy((int*)0xF5200000+filepos, buffer, insize);
-   DCFlushRange((int*)0xF5200000+filepos, insize);
+	DCFlushRange((int*)0xF5200000+filepos, insize);
 	filepos += insize;
 	return insize;
 
@@ -113,60 +130,38 @@ int Menu_Main(void)
 		return 0;
 	}
 
-	SYSLaunchMenu();
-
 	initScreen();
 	printf_("Welcome to the Pretendo Installer %s", (u32)installer_version);
 	printf_("This installer will patch your Console temporarily.", 0);
-	printf_("It will modify Nintendo URLs to Pretendo ones.", 0);
 	printf_("", 0);
-	printf_("Press A button to continue.", 0);
-
-	s32 vpadError = -1;
-	VPADData vpad;
+	printf_("Press A for URL+SSL patches.", 0);
+	printf_("Press B for SSL patches.", 0);
+	printf_("Press HOME to exit.", 0);
 
 	while(1)
-	{
-		VPADRead(0, &vpad, 1, &vpadError);
-		if(!vpadError && ((vpad.btns_d | vpad.btns_h) & VPAD_BUTTON_A)) 
+	{	
+		int ret = wait_for_vpad_input();
+
+		if(ret & VPAD_BUTTON_A)
 		{
+			*(volatile int*)0xF5FFFFFC = 0;
 			break;
 		}
+
+		if(ret & VPAD_BUTTON_B) 
+		{
+			*(volatile int*)0xF5FFFFFC = 1; 
+			break;
+		}
+
+		if(ret & VPAD_BUTTON_HOME) return 0;
 	}
 
+	SYSLaunchMenu();
+
+	DCFlushRange((void*)0xF5FFFFFC, 4);
+
 	clearScreen();
-
-//   printf_("Checking for updates ...", 0);
-
-//   dl_file(PRETENDO_PATCHER_VERSION_URL);
-
-//   printf_("%s", 0xF5200000);
-
-   /* *** Removed the auto-updater *** */
-/*
-   if(strcmp((const char*)0xF5200000, installer_version) != 0)
-   {
-      printf_("Updating ...", 0);
-
-      struct stat sb;
-      if(stat(PRETENDO_PATCHER_FOLDER, &sb) == 0)
-      {
-         mkdir(PRETENDO_PATCHER_FOLDER, 0777);
-      }
-
-      int size = dl_file(PRETENDO_PATCHER_URL);
-      int fd = open(PRETENDO_PATCHER_FILEPATH, O_WRONLY);
-      write(fd, (void*)0xF5200000, size);
-      close(fd);
-      printf_("Updated ! Please relaunch the installer.", 0);
-      os_sleep(3);
-      unmount_sd_fat("sd");
-      already_done++;
-      deinitScreen();
-      return EXIT_RELAUNCH_ON_LOAD;
-   }
-
-*/
 
 	printf_("Loading patches into RAM...", 0);
 
@@ -191,9 +186,12 @@ int Menu_Main(void)
 	printf_("0x%08X", ret);
 	printf_("Exiting ...", 0);
 
-	os_sleep(2);
+	os_sleep(1);
 
-	/* *** set the done flag and exit *** */
+	// 0x11446E38 w/ version
+	// 0x11446EB8 w/out version
+	// 0x1114f6a4 Miiverse
+
 	deinitScreen();
 	already_done++;
 	return EXIT_RELAUNCH_ON_LOAD;

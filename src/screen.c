@@ -31,7 +31,7 @@ void clearScreen() {
 
     for(int i = 0; i < 2; i++)
     {
-        OSScreenClearBufferEx(1, 0x652ab7ff);
+        OSScreenClearBufferEx(1, 0x40404040);
         OSScreenFlipBuffersEx(1);
     }
 

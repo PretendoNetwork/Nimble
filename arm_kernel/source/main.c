@@ -97,26 +97,33 @@ int _main()
 	*(volatile u32*)(0x04001BB0 - 0x04000000 + 0x08280000) = 0xE3A00000; 	// mov r0, #0
 	*(volatile u32*)(0x04001D40 - 0x04000000 + 0x08280000) = 0xE3A00000; 	// mov r0, #0
 
-	// Kinnay SSL Patch
-	*(volatile u32*)(0x12BD9E84) = 0xE3A00001; 	// mov r0, #1
-
+	int patch_code = *(int*)0x01FFFFFC;
 	int patch_num = *(int*)0x5080B000;
 	URL_Patch* curr_patch = (URL_Patch*)0x5080C000; 
 
-	if (patch_num > 0)
+	if(patch_code == 0)
 	{
-		for (int i = 0; i < patch_num; ++i)
+		if (patch_num > 0)
 		{
-			if(curr_patch->address && &curr_patch->url)
+			for (int i = 0; i < patch_num; ++i)
 			{
-			kernel_memcpy((void*)curr_patch->address, (void*)&curr_patch->url, s_strlen((const char*)&curr_patch->url) + 1);
-			curr_patch++;
+				if(curr_patch->address && &curr_patch->url)
+				{
+				kernel_memcpy((void*)curr_patch->address, (void*)&curr_patch->url, s_strlen((const char*)&curr_patch->url) + 1);
+				curr_patch++;
+				}
 			}
 		}
-	}	
 
+		// Kinnay SSL Patch
+		*(volatile u32*)(0x12BD9E84) = 0xE3A00001; 	// mov r0, #1
 
-
+	}
+	else if(patch_code == 1)
+	{
+		// Kinnay SSL Patch
+		*(volatile u32*)(0x12BD9E84) = 0xE3A00001; 	// mov r0, #1
+	}
 
 	*(volatile u32*)(0x1555500) = 0;
 

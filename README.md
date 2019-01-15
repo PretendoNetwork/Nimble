@@ -26,7 +26,4 @@ You need to set **devkitPro\msys\bin** into your PATH for **xxd.exe** usage.
 
 # TODO
 
-- Add an option to run it with all URL patches w/out SSL Patch
-- Add an option to run it with all URL patches w/ SSL Patch
-- Add an option to run it with no URL patches w/ SSL patch
-- Make a working auto-updater (old-one supported HTTPS & Proxies but couldn't write to the SD Card)
+- Update detector + Changelog + periodic music (eShop like)
