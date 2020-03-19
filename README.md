@@ -19,7 +19,6 @@ You also need the latest wut version from the github, the one hosted (updated fr
 # Credits
 - Pretendo Network team
 - Rambo6Glaz for making the installer
-- dimok789 for the infinite loading patch
 - Kinnay for the No-SSL patch
 
 # TODO
