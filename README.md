@@ -2,29 +2,26 @@
 
 [![N|Solid](https://camo.githubusercontent.com/b98196c2347796d66fa669e8510749665ec80ba0/68747470733a2f2f692e696d6775722e636f6d2f5839346237574b2e706e67)](https://pretendo.cc)
 
-
-
 This is the official Pretendo Installer for the Wii U. It will patch your console's IOSU (ARM microkernel) temporarily (goes away after a reboot) to modify Nintendo URLs to Pretendo URLs.
 
 # Features
-- Pretty lightweight
-- Contains vocabulary that might not be understood
-- Uses magic to do what it does
+- You can see your Serial Number, DeviceId, Factory build date
+- URL patching / SSL patch
+- chnage the domain name (up to 12 characters only)
 
 # Dependencies
-- [dynamic_libs](https://github.com/Maschell/dynamic_libs/)
-- [libutils](https://github.com/Maschell/libutils/)
-- [libgui](https://github.com/Maschell/libgui/) + all the portlibs going with it !
-- devkitPro (PPC and ARM)
+- [**wut**](https://github.com/devkitPro/wut/) 
+- **devkitPro** (PPC only, ARM code is already built)
 
-You need to set **devkitPro\msys\bin** into your PATH for **xxd.exe** usage.
+You need to set **devkitPro\msys\bin** into your PATH
+You also need the latest wut version from the github, the one hosted (updated from pacman commands) isn't supported
   
 # Credits
 - Pretendo Network team
-- NexoCube for making the installer
+- Rambo6Glaz for making the installer
 - dimok789 for the infinite loading patch
 - Kinnay for the No-SSL patch
 
 # TODO
 
-- Update detector + Changelog + periodic music (eShop like)
+- Non carcinogenic update detector
