@@ -7,7 +7,7 @@ This is the official Pretendo Installer for the Wii U. It will patch your consol
 # Features
 - You can see your Serial Number, DeviceId, Factory build date
 - URL patching / SSL patch
-- chnage the domain name (up to 12 characters only)
+- change the domain name (up to 12 characters only)
 
 # Dependencies
 - [**wut**](https://github.com/devkitPro/wut/) 
