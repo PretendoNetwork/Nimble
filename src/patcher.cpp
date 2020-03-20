@@ -1,6 +1,7 @@
 #include "patcher.h"
 #include "IOSU_Exploit.h"
 
+#include "led.h"
 #include "binary_data/pretendo_patcher.h"
 
 
@@ -47,5 +48,7 @@ void Patch_IOSU_URLs(BOOL URLs, BOOL SSL, char *domain)
 
 	/* do the exploit */
 	IOSU_Exploit((uint8_t*)pretendo_patcher_bin, pretendo_patcher_bin_len);
+
+	ChangeDrcLedPattern(DRC_LED_TWO_TICKS);
 
 }

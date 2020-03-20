@@ -28,7 +28,7 @@
 #include <coreinit/title.h>
 #include <coreinit/debug.h>
 #include <coreinit/memorymap.h>
-#include <coreinit/messagequeue.h>
+#include <coreinit/dynload.h>
 
 #include <nsysnet/socket.h>
 #include <nsysnet/nssl.h>
@@ -53,6 +53,7 @@
 #include "screen.h"
 #include "IOSU_Exploit.h"
 #include "keyboard.h"
+#include "led.h"
 
 #include "binary_data/arm_kernel.h"
 
@@ -60,6 +61,8 @@ const char *version = "1.0";
 
 #define IOSU_ALL_URLS   1 << 1
 #define IOSU_SSL_PATCH  1 << 2
+
+BOOL alreadyPatched = FALSE;
 
 void ExceptionHandler(const char *type, OSContext *context)
 {
@@ -153,6 +156,8 @@ int main(int argc, char *argv[])
 	AXInit();
 	WHBLogPrintf("Hello World!");
 
+	InitDRCStuff();
+
 	/* get the device ID */
 	uint32_t deviceID = -1;
 	IOS_Ioctl((IOSHandle)IOS_Open("/dev/mcp", (IOSOpenMode)0), 0xD3, 0, 0, &deviceID, 4);
@@ -187,7 +192,7 @@ int main(int argc, char *argv[])
 		if(btn & VPAD_BUTTON_A && (OSTicksToMilliseconds(OSGetTick() - timeSinceLastPress) > 200))
 		{	
 
-			if(menu == 3 && g_cursor == 0)
+			if(menu == 3 && g_cursor == 0 && alreadyPatched == FALSE)
 			{
 
 				WHBLogPrintf("test");
@@ -195,26 +200,29 @@ int main(int argc, char *argv[])
 				delete screen;
 				WHBLogPrintf("%p %s", currentDomain, currentDomain);
 				Patch_IOSU_URLs(TRUE, FALSE, currentDomain);
+				alreadyPatched = TRUE;
 				OSSleepTicks(OSMillisecondsToTicks(200));
 				screen = new WiiUScreen();
 			}
 
-			if(menu == 3 && g_cursor == 1)
+			if(menu == 3 && g_cursor == 1 && alreadyPatched == FALSE)
 			{
 
 				delete screen;
 				Patch_IOSU_URLs(TRUE, TRUE, currentDomain);
+				alreadyPatched = TRUE;
 				OSSleepTicks(OSMillisecondsToTicks(200));
 				screen = new WiiUScreen();
 			}
 
-			if(menu == 3 && g_cursor == 2)
+			if(menu == 3 && g_cursor == 2 && alreadyPatched == FALSE)
 			{
 
 				delete screen;
 				Patch_IOSU_URLs(FALSE, TRUE, currentDomain);
+				alreadyPatched = TRUE;
 				OSSleepTicks(OSMillisecondsToTicks(200));
-				screen = new WiiUScreen();
+				screen = new WiiUScreen();		
 			}
 
 			if(g_cursor == 1 && menu == 0)
@@ -347,11 +355,15 @@ int main(int argc, char *argv[])
 		}
 
 		/* Draw Main Menu */
-		if(menu == 3)
+		if(menu == 3 && alreadyPatched == FALSE)
 		{
 			screen->DrawTextf("%s Patch all URLs", (g_cursor == 0) ? "> " : "  ");
 			screen->DrawTextf("%s Patch all URLs + SSL Patch", (g_cursor == 1) ? "> " : "  ");
 			screen->DrawTextf("%s SSL Patch", (g_cursor == 2) ? "> " : "  ");
+		}
+		else if(menu == 3 && alreadyPatched == TRUE) 
+		{
+			screen->DrawText("Already patched, come back later :D");
 		}
 
 		/* draw domain */
@@ -368,6 +380,8 @@ int main(int argc, char *argv[])
 	}
 
 	WHBLogPrintf("Exiting ...");
+
+	ChangeDrcLedPattern(DRC_LED_OFF);
 
 	if(exitingToHBL == FALSE)
 		ProcUIShutdown();
