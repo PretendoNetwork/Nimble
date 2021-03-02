@@ -1,153 +1,274 @@
-#-------------------------------------------------------------------------------
-.SUFFIXES:
-#-------------------------------------------------------------------------------
+# This is a minimal set of ANSI/VT100 color codes
+_END=\033[0m
+_BOLD=\033[1m
+_UNDER=\033[4m
+_REV=\033[7m
 
+# Colors
+_GREY=\033[30m
+_RED=\033[31m
+_GREEN=\033[32m
+_YELLOW=\033[33m
+_BLUE=\033[34m
+_PURPLE=\033[35m
+_CYAN=\033[36m
+_WHITE=\033[37m
+
+#---------------------------------------------------------------------------------
+# Clear the implicit built in rules
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(DEVKITPPC)),)
+$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+endif
 ifeq ($(strip $(DEVKITPRO)),)
-$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPRO")
 endif
 
-TOPDIR ?= $(CURDIR)
+UNAME_S	:=	$(shell uname -s)
 
-include $(DEVKITPRO)/wut/share/wut_rules
+ifneq (,$(findstring Darwin,$(UNAME_S)))
+	export SHELL=/bin/bash
+endif
 
-#-------------------------------------------------------------------------------
+export PATH			:=	$(DEVKITPPC)/bin:$(PORTLIBS)/bin:$(PATH)
+export LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
+export LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+export PORTLIBS     := $(DEVKITPRO)/portlibs/wiiu
+
+PREFIX	:=	powerpc-eabi-
+
+export AS	:=	$(PREFIX)as
+export CC	:=	$(PREFIX)gcc
+export CXX	:=	$(PREFIX)g++
+export AR	:=	$(PREFIX)ar
+export OBJCOPY	:=	$(PREFIX)objcopy
+
+#---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
-# DATA is a list of directories containing data files
-# INCLUDES is a list of directories containing header files
-#-------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
-BUILD		:=	build
-SOURCES		:=	src 
-DATA		:=	data 
-INCLUDES	:=	src
+# INCLUDES is a list of directories containing extra header files
+#---------------------------------------------------------------------------------
+TARGET		:=	no_ssl_patch
+BUILD		:=	build_files
+BUILD_DBG	:=	$(TARGET)_dbg
+SOURCES		:=	source \
+				source/wiiu \
+				source/utils \
 
-#-------------------------------------------------------------------------------
+				
+DATA		:=	
+
+INCLUDES	:=  source
+
+#---------------------------------------------------------------------------------
 # options for code generation
-#-------------------------------------------------------------------------------
-CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
-			$(MACHDEP)
+#---------------------------------------------------------------------------------
+CFLAGS	:=  -nostdlib -std=gnu11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
+		    -O2 -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
+CXXFLAGS := -nostdlib -std=gnu++11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
+		    -O2 -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
+ASFLAGS	:= -mregnames
+LDFLAGS	:= -nostartfiles -Wl,-Map,$(notdir $@).map,--gc-sections,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=aligned_alloc,--wrap=malloc_usable_size,--wrap=memalign,--wrap=posix_memalign,--wrap=pvalloc,--wrap=valloc
 
-CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__
+#---------------------------------------------------------------------------------
+Q := @
+MAKEFLAGS += --no-print-directory
+#---------------------------------------------------------------------------------
+# any extra libraries we wish to link with the project
+#---------------------------------------------------------------------------------
+LIBS	:=
 
-CXXFLAGS	:= $(CFLAGS)
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+LIBDIRS	:=	$(CURDIR)	\
+			$(DEVKITPPC)/lib  \
+			$(DEVKITPPC)/lib/gcc/powerpc-eabi/8.3.0 \
+			$(PORTLIBS)
 
-ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-g $(ARCH) $(RPXSPECS) -Wl,-Map,$(notdir $*.map)
-
-LIBS	:=  -lgui -lfreetype -lgd -lpng -ljpeg -lz -lmad -lvorbisidec -logg -lbz2 -lwut 
-
-#-------------------------------------------------------------------------------
-# list of directories containing libraries, this must be the top level
-# containing include and lib
-#-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUT_ROOT) $(WUT_ROOT)/usr
-
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
 # rules for different file extensions
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 ifneq ($(BUILD),$(notdir $(CURDIR)))
-#-------------------------------------------------------------------------------
-export OUTPUT	:=	$(CURDIR)/$(TARGET)
-export TOPDIR	:=	$(CURDIR)
-
+#---------------------------------------------------------------------------------
+export PROJECTDIR := $(CURDIR)
+export OUTPUT	:=	$(CURDIR)/$(TARGETDIR)/$(TARGET)
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
-			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
-
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
+#---------------------------------------------------------------------------------
+# automatically build a list of object files for our project
+#---------------------------------------------------------------------------------
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
-SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+CCFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cc)))
+sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+TTFFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.ttf)))
+PNGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
 
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 ifeq ($(strip $(CPPFILES)),)
-#-------------------------------------------------------------------------------
 	export LD	:=	$(CC)
-#-------------------------------------------------------------------------------
 else
-#-------------------------------------------------------------------------------
 	export LD	:=	$(CXX)
-#-------------------------------------------------------------------------------
 endif
-#-------------------------------------------------------------------------------
 
-export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES))
-export OFILES_SRC	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-export OFILES 	:=	$(OFILES_BIN) $(OFILES_SRC)
-export HFILES_BIN	:=	$(addsuffix .h,$(subst .,_,$(BINFILES)))
-
-export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
-			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-			-I$(CURDIR)/$(BUILD) -I$(PORTLIBS_PATH)/ppc/include/freetype2
-
-export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
-
-.PHONY: $(BUILD) clean all
-
-#-------------------------------------------------------------------------------
-all: $(BUILD)
-
-$(BUILD):
-	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-
-#-------------------------------------------------------------------------------
-clean:
-	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).elf
-
-#-------------------------------------------------------------------------------
+ifeq ($(strip $(CCFILES)),)
+	export LD	:=	$(CC)
 else
-.PHONY:	all
+	export LD	:=	$(CXX)
+endif
+
+export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(CCFILES:.cc=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o) \
+					$(PNGFILES:.png=.png.o) $(addsuffix .o,$(BINFILES))
+
+#---------------------------------------------------------------------------------
+# build a list of include paths
+#---------------------------------------------------------------------------------
+export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC) \
+					-I$(PORTLIBS)/include -I$(PORTLIBS)/include/freetype2 \
+					-I$(PORTLIBS)/include/dynamic_libs \
+					-I$(PORTLIBS)/include/libutils
+
+#---------------------------------------------------------------------------------
+# build a list of library paths
+#---------------------------------------------------------------------------------
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+					-L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+.PHONY: clean
+
+debug: CFLAGS += -D__DEBUG__
+debug: CXXFLAGS += -D__DEBUG__
+debug: $(CURDIR)/source/iosu_payload/arm_kernel.h executable_d
+release: $(CURDIR)/source/iosu_payload/arm_kernel.h executable_r
+
+#---------------------------------------------------------------------------------
+
+$(CURDIR)/source/iosu_payload/arm_kernel.h: $(CURDIR)/source/iosu_payload/arm_user.h
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel/ -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile
+
+$(CURDIR)/source/iosu_payload/arm_user.h:
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user/ -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile
+
+#---------------------------------------------------------------------------------
+clean:
+	@echo -e "${_CYAN}Cleaning the project${_END}"
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile clean
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile clean
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
+#---------------------------------------------------------------------------------
+executable_d:
+	@echo -e "\n${_YELLOW}Building for dev/debug${_END}"
+	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
+	@$(MAKE) debug --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+#---------------------------------------------------------------------------------
+executable_r:
+	@echo -e "\n${_YELLOW}Building for release${_END}"
+	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
+	@$(MAKE) release --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+#---------------------------------------------------------------------------------
+
+else
 
 DEPENDS	:=	$(OFILES:.o=.d)
 
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # main targets
-#-------------------------------------------------------------------------------
-all	:	$(OUTPUT).rpx
+#---------------------------------------------------------------------------------
+$(OUTPUT).elf:  $(OFILES)
 
-$(OUTPUT).rpx	:	$(OUTPUT).elf
-$(OUTPUT).elf	:	$(OFILES)
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .jpg extension
+#---------------------------------------------------------------------------------
 
-$(OFILES_SRC)	: $(HFILES_BIN)
+debug: CFLAGS += -D__DEBUG__
+debug: CXXFLAGS += -D__DEBUG__
+debug: $(OUTPUT).elf
+release: $(OUTPUT).elf
 
-#-------------------------------------------------------------------------------
-# you need a rule like this for each extension you use as binary data
-#-------------------------------------------------------------------------------
-%.bin.o	%_bin.h :	%.bin
-	@echo $(notdir $<)
-	@$(bin2o)
+%.elf: link.ld $(OFILES)
+	@echo -e "${_PURPLE}[LD]${_END}  Linking ${_CYAN}$(notdir $@)${_END}.."
+	$(Q)$(LD) -n -T $^ $(LDFLAGS) -o ../$(BUILD_DBG).elf  $(LIBPATHS) $(LIBS)
+	$(Q)$(OBJCOPY) -S -R .comment -R .gnu.attributes ../$(BUILD_DBG).elf $@
 
-%.png.o	%_png.h :	%.png
+#---------------------------------------------------------------------------------
+%.a:
+#---------------------------------------------------------------------------------
+	@echo $(notdir $@)
+	@rm -f $@
+	@$(AR) -rc $@ $^
+
+#---------------------------------------------------------------------------------
+%.o: %.cpp
+	@echo -e "${_GREEN}[C++]${_END} Building ${_CYAN}$(notdir $<)${_END}.."
+	@$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
+#---------------------------------------------------------------------------------
+%.o: %.cc
+	@echo -e "${_GREEN}[C++]${_END} Building ${_CYAN}$(notdir $<)${_END}.."
+	@$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
+#---------------------------------------------------------------------------------
+%.o: %.c
+	@echo -e "${_GREEN}[C]${_END}   Building ${_CYAN}$(notdir $<)${_END}.."
+	@$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
+#---------------------------------------------------------------------------------
+%.o: %.S
+	@echo  -e "${_RED}[ASM]${_END} Building ${_CYAN}$(notdir $<)${_END}.."
+	@$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(ASFLAGS) -c $< -o $@ $(ERROR_FILTER)
+#---------------------------------------------------------------------------------
+%.png.o : %.png
 	@echo $(notdir $<)
-	@$(bin2o)
-	
-%.jpg.o	%_jpg.h :	%.jpg
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.jpg.o : %.jpg
 	@echo $(notdir $<)
-	@$(bin2o)
-	
-%.ogg.o	%_ogg.h :	%.ogg
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.ttf.o : %.ttf
 	@echo $(notdir $<)
-	@$(bin2o)	
-	
-%.mp3.o	%_mp3.h :	%.mp3
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.bin.o : %.bin
 	@echo $(notdir $<)
-	@$(bin2o)	
-	
-%.ttf.o	%_ttf.h :	%.ttf
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.wav.o : %.wav
 	@echo $(notdir $<)
-	@$(bin2o)	
-	
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.mp3.o : %.mp3
+	@echo $(notdir $<)
+	@bin2s -a 32 $< | $(AS) -o $(@)
+
+#---------------------------------------------------------------------------------
+%.ogg.o : %.ogg
+	@echo $(notdir $<)
+	@bin2s -a 32 $< | $(AS) -o $(@)
 
 -include $(DEPENDS)
 
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 endif
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
