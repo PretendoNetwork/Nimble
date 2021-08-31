@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "patches.h"
+
 extern uint32_t GetControlRegister(void);
 extern void SetControlRegister(uint32_t newControlRegister);
 extern uint32_t GetCPSR(void);
@@ -123,6 +125,12 @@ static const char kernelDamageFixData[] = {
 	0xff,0xff,0xe3,0xec, 0xe9,0x2d,0x40,0x30
 };
 
+size_t strlen_(const char *str) {
+    const char *s;
+    for (s = str; *s; ++s);
+    return (s - str);
+}
+
 void memcpy_(void *where, const void *from, uint32_t size) {
 
 	uint8_t *where_ = (uint8_t*)where;
@@ -177,7 +185,16 @@ int _main() {
 	/* copy the code to memory, the userland ROP chain will jump to it */
 	memcpy_((void*)0x101312D0, (void*)0x00148004, *(uint32_t*)0x00148000);
 
+	/* No SSL patch */
 	*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
+
+	/* URL patch */
+	for(int i = 0; i < sizeof(url_patches)/sizeof(URL_Patch); i++) {
+		memcpy_((void*)(url_patches[i].address),
+				(void*)&url_patches[i].url,
+				strlen_((const char*)&url_patches[i].url) + 1
+				);
+	}
 
 	/* Reset CR, and CPSR back to what they were */
 	SetControlRegister(savedControlRegister);

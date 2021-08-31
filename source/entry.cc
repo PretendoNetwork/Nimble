@@ -15,5 +15,33 @@ extern "C" int __entry(int argc, char **argv)
 	/* Do the kernel exploit */
 	WiiU::IOSU_Kernel::Exploit();
 
+	/* If we're still alive, everything went well */
+	OSScreenInit();
+	OSScreenEnableEx(0, 1);
+	OSScreenEnableEx(1, 1);
+
+	uint8_t* scBuffer = (uint8_t*)0xF4000000;
+	uint32_t tvSize = OSScreenGetBufferSizeEx(0);
+
+	OSScreenSetBufferEx(0, scBuffer);
+	OSScreenSetBufferEx(1, scBuffer + tvSize);
+
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
+
+	OSScreenPutFontEx(0, 0, 0, "NoSSL patch applied");
+	OSScreenPutFontEx(0, 0, 1, "URLs redirected to Pretendo Network");
+	OSScreenPutFontEx(0, 0, 2, "Exiting to loader in 3s");
+	OSScreenPutFontEx(0, 0, 4, "Restart your WiiU to remove patches");
+
+	OSScreenPutFontEx(1, 0, 0, "NoSSL patch applied");
+	OSScreenPutFontEx(1, 0, 1, "URLs redirected to Pretendo Network");
+	OSScreenPutFontEx(1, 0, 2, "Exiting to loader in 3s");
+	OSScreenPutFontEx(1, 0, 4, "Restart your WiiU to remove patches");
+
+	OSScreenFlipBuffersEx(0); OSScreenFlipBuffersEx(1);
+
+	OSSleepTicks(OSSecondsToTicks(3));
+
 	return RETURN_TO_HBL;
 }

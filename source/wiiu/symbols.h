@@ -405,6 +405,16 @@ extern void (*OSExitThread)(int result);
 extern void (*OSSetThreadName)(OSThread *thread, const char *name);
 extern void (*OSSleepTicks)(int64_t ticks);
 
+extern void (*OSScreenInit)(void);
+extern void (*OSScreenShutdown)(void);
+extern uint32_t (*OSScreenGetBufferSizeEx)(uint32_t bufferNum);
+extern int (*OSScreenSetBufferEx)(uint32_t bufferNum, void * addr);
+extern int (*OSScreenClearBufferEx)(uint32_t bufferNum, uint32_t temp);
+extern int (*OSScreenFlipBuffersEx)(uint32_t bufferNum);
+extern int (*OSScreenPutFontEx)(uint32_t bufferNum, uint32_t posX, uint32_t posY, const char * buffer);
+extern int (*OSScreenEnableEx)(uint32_t bufferNum, int enable);
+extern int (*OSScreenPutPixelEx)(uint32_t bufferNum, uint32_t posX, uint32_t posY, uint32_t color);
+
 extern void *(*__OSPhysicalToEffectiveCached)(uint32_t addr);
 extern void *(*OSEffectiveToPhysical)(void *addr);
 extern void (*DCInvalidateRange)(void *addr, uint32_t size);

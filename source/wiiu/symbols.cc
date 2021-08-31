@@ -42,6 +42,16 @@ void (*OSExitThread)(int result);
 void (*OSSetThreadName)(OSThread *thread, const char *name);
 void (*OSSleepTicks)(int64_t ticks);
 
+void (*OSScreenInit)(void);
+void (*OSScreenShutdown)(void);
+uint32_t (*OSScreenGetBufferSizeEx)(uint32_t bufferNum);
+int (*OSScreenSetBufferEx)(uint32_t bufferNum, void * addr);
+int (*OSScreenClearBufferEx)(uint32_t bufferNum, uint32_t temp);
+int (*OSScreenFlipBuffersEx)(uint32_t bufferNum);
+int (*OSScreenPutFontEx)(uint32_t bufferNum, uint32_t posX, uint32_t posY, const char * buffer);
+int (*OSScreenEnableEx)(uint32_t bufferNum, int enable);
+int (*OSScreenPutPixelEx)(uint32_t bufferNum, uint32_t posX, uint32_t posY, uint32_t color);
+
 void *(*__OSPhysicalToEffectiveCached)(uint32_t addr);
 void *(*OSEffectiveToPhysical)(void *addr);
 void (*DCInvalidateRange)(void *addr, uint32_t size);
@@ -196,6 +206,16 @@ void WiiU::Symbols::LoadWiiUSymbols() {
 	LOAD_FUNC(__rpl_coreinit, OSExitThread);
 	LOAD_FUNC(__rpl_coreinit, OSSetThreadName);
 	LOAD_FUNC(__rpl_coreinit, OSSleepTicks);
+
+	LOAD_FUNC(__rpl_coreinit, OSScreenInit);
+	LOAD_FUNC(__rpl_coreinit, OSScreenShutdown);
+	LOAD_FUNC(__rpl_coreinit, OSScreenGetBufferSizeEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenSetBufferEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenClearBufferEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenFlipBuffersEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenPutFontEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenPutPixelEx);
+	LOAD_FUNC(__rpl_coreinit, OSScreenEnableEx);
 
 	LOAD_FUNC(__rpl_coreinit, __OSPhysicalToEffectiveCached);
 	LOAD_FUNC(__rpl_coreinit, OSEffectiveToPhysical);

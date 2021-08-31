@@ -21,19 +21,19 @@ OSMutex __debug_logger_mutex;
 bool ExcDSI(OSContext *ctx)
 {
 	WiiU::Exception::ExceptionHandler("DSI", ctx);
-	return TRUE;
+	return true;
 }
 
 bool ExcISI(OSContext *ctx)
 {
 	WiiU::Exception::ExceptionHandler("ISI", ctx);
-	return TRUE;
+	return true;
 }
 
 bool ExcProgram(OSContext *ctx)
 {
 	WiiU::Exception::ExceptionHandler("Program", ctx);
-	return TRUE;
+	return true;
 }
 
 void WiiU::Debugger::Start()
