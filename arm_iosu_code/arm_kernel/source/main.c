@@ -186,7 +186,12 @@ int _main() {
 	memcpy_((void*)0x101312D0, (void*)0x00148004, *(uint32_t*)0x00148000);
 
 	/* No SSL patch */
-	*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
+	/* 5.5.5 */
+	if(*(uint32_t*)0xE1019F78 == 0xE1A00004) {
+		*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
+	} else {
+		*(uint32_t*)(0xE1019E84 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
+	}
 
 	/* URL patch */
 	for(int i = 0; i < sizeof(url_patches)/sizeof(URL_Patch); i++) {
