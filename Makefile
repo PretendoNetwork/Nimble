@@ -33,8 +33,6 @@ ifneq (,$(findstring Darwin,$(UNAME_S)))
 endif
 
 export PATH			:=	$(DEVKITPPC)/bin:$(PORTLIBS)/bin:$(PATH)
-export LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
-export LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
 export PORTLIBS     := $(DEVKITPRO)/portlibs/wiiu
 
 PREFIX	:=	powerpc-eabi-
@@ -58,18 +56,20 @@ SOURCES		:=	source \
 				source/wiiu \
 				source/utils \
 
-				
-DATA		:=	
+
+DATA		:=
 
 INCLUDES	:=  source
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	:=  -nostdlib -std=gnu11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
-		    -O2 -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
-CXXFLAGS := -nostdlib -std=gnu++11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
-		    -O2 -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
+CFLAGS	:=  -nostdlib -std=gnu11 -ffunction-sections -fdata-sections \
+		    -mcpu=750 -meabi -mhard-float -ffast-math -O2 \
+		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
+CXXFLAGS := -nostdlib -std=gnu++11 -ffunction-sections -fdata-sections \
+		    -mcpu=750 -meabi -mhard-float -ffast-math -O2 \
+		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
 ASFLAGS	:= -mregnames
 LDFLAGS	:= -nostartfiles -Wl,-Map,$(notdir $@).map,--gc-sections,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=aligned_alloc,--wrap=malloc_usable_size,--wrap=memalign,--wrap=posix_memalign,--wrap=pvalloc,--wrap=valloc
 
@@ -138,7 +138,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(CCFILES:.cc=.o) \
 #---------------------------------------------------------------------------------
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC) \
+					-I$(CURDIR)/$(BUILD) \
 					-I$(PORTLIBS)/include -I$(PORTLIBS)/include/freetype2 \
 					-I$(PORTLIBS)/include/dynamic_libs \
 					-I$(PORTLIBS)/include/libutils
@@ -147,7 +147,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 # build a list of library paths
 #---------------------------------------------------------------------------------
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
-					-L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
+					-L$(PORTLIBS)/lib
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 .PHONY: clean

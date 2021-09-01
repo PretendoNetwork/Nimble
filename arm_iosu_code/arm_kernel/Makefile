@@ -28,7 +28,7 @@ LINK = arm-none-eabi-ld
 AS = arm-none-eabi-as
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
-CFLAGS += -Wall -mbig-endian -std=gnu99 -mcpu=arm926ej-s -Os -I$(DEVKITPRO)/libnds/include
+CFLAGS += -Wall -mbig-endian -std=gnu99 -mcpu=arm926ej-s -Os
 LDFLAGS += --script=link.ld -EB -L"$(DEVKITARM)/arm-none-eabi/lib" -Map=output.map
 
 CFILES = $(wildcard source/*.c)
