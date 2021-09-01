@@ -65,6 +65,7 @@ $(PROJECTNAME).bin: $(PROJECTNAME).elf
 $(PROJECTNAME)_bin.h: $(PROJECTNAME).bin
 	@echo -e "${_PURPLE}[ARM XXD]${_END} Creating ${_CYAN}$(notdir $@)${_END} from ${_CYAN}$(notdir $<)${_END}.."
 	@xxd -i $< | sed "s/unsigned/static const unsigned/g;s/$(PROJECTNAME)$*/$(PROJECTNAME)/g" > $@
+	@mkdir -p ../../source/iosu_payload/
 	@cp $(PROJECTNAME)_bin.h ../../source/iosu_payload/$(PROJECTNAME).h
 
 $(PROJECTNAME).elf: show_head $(OFILES)
@@ -74,7 +75,7 @@ $(PROJECTNAME).elf: show_head $(OFILES)
 
 clean:
 	@rm -f build/*.o build/*.d
-	@rm -f $(PROJECTNAME).elf $(PROJECTNAME).bin $(PROJECTNAME)_bin.h
+	@rm -f $(PROJECTNAME).elf $(PROJECTNAME).bin $(PROJECTNAME)_bin.h output.map
 
 -include $(DFILES)
 

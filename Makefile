@@ -172,12 +172,12 @@ clean:
 	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile clean
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
 #---------------------------------------------------------------------------------
-executable_d:
+executable_d: $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
 	@echo -e "\n${_YELLOW}Building for dev/debug${_END}"
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
 	@$(MAKE) debug --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 #---------------------------------------------------------------------------------
-executable_r:
+executable_r: $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
 	@echo -e "\n${_YELLOW}Building for release${_END}"
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
 	@$(MAKE) release --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
