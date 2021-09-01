@@ -12,8 +12,8 @@ typedef struct URL_Patch
 	char url[80];
 } URL_Patch;
 
-static  const URL_Patch url_patches[25] = {
-
+static  const URL_Patch url_patches[] = {
+	//nim-boss .rodata
 	{IOS_NIM_BA_TO_VA(0xE2282550), "http://pushmore.wup.shop.pretendo.cc/pushmore/r/%s"},
 	{IOS_NIM_BA_TO_VA(0xE229A0A0), "http://npns-dev.c.app.pretendo.cc/bst.dat"},
 	{IOS_NIM_BA_TO_VA(0xE229A0D0), "http://npns-dev.c.app.pretendo.cc/bst2.dat"},
@@ -31,13 +31,17 @@ static  const URL_Patch url_patches[25] = {
 	{IOS_NIM_BA_TO_VA(0xE229B1F4), "https://npts.app.pretendo.cc/p01/tasksheet/%s/%s/%s/%s?c=%s&l=%s"},
 	{IOS_NIM_BA_TO_VA(0xE229B238), "https://npts.app.pretendo.cc/p01/tasksheet/%s/%s/%s?c=%s&l=%s"},
 	{IOS_NIM_BA_TO_VA(0xE22AB2D8), "https://idbe-wup.cdn.pretendo.cc/icondata/%02X/%016llX.idbe"},
+	{IOS_NIM_BA_TO_VA(0xE22AB318), "https://idbe-ctr.cdn.pretendo.cc/icondata/%02X/%016llX.idbe"},
 	{IOS_NIM_BA_TO_VA(0xE22AB358), "https://idbe-wup.cdn.pretendo.cc/icondata/%02X/%016llX-%d.idbe"},
+	{IOS_NIM_BA_TO_VA(0xE22AB398), "https://idbe-ctr.cdn.pretendo.cc/icondata/%02X/%016llX-%d.idbe"},
 	{IOS_NIM_BA_TO_VA(0xE22B3EF8), "https://ecs.c.shop.pretendo.cc"},
 	{IOS_NIM_BA_TO_VA(0xE22B3F30), "https://ecs.c.shop.pretendo.cc/ecs/services/ECommerceSOAP"},
 	{IOS_NIM_BA_TO_VA(0xE22B3F70), "https://ias.c.shop.pretendo.cc/ias/services/IdentityAuthenticationSOAP"},
 	{IOS_NIM_BA_TO_VA(0xE22B3FBC), "https://cas.c.shop.pretendo.cc/cas/services/CatalogingSOAP"},
 	{IOS_NIM_BA_TO_VA(0xE22B3FFC), "https://nus.c.shop.pretendo.cc/nus/services/NetUpdateSOAP"},
 	{IOS_NIM_BA_TO_VA(0xE229DE0C), "n.app.pretendo.cc"},
+	//nim-boss .bss
+	{IOS_NIM_BA_TO_VA(0xE24B8A24), "https://nppl.app.pretendo.cc/p01/policylist/1/1/UNK"}, //bit of a hack
 	{IOS_FPD_BA_TO_VA(0xE31930D4), "https://%s%saccount.pretendo.cc/v%u/api/"}
 
 };
