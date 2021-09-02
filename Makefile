@@ -49,7 +49,7 @@ export OBJCOPY	:=	$(PREFIX)objcopy
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=	no_ssl_patch
+TARGET		:=	nimble_patcher
 BUILD		:=	build_files
 BUILD_DBG	:=	$(TARGET)_dbg
 SOURCES		:=	source \
