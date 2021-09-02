@@ -12,8 +12,14 @@ extern "C" int __entry(int argc, char **argv)
 	WiiU::Symbols::LoadWiiUSymbols();
 	WiiU::Debugger::Start();
 
+	bool are_we_on_555 = false;
+	const char* coreinit_build = (const char*)0x100011A0;
+	if(!strcmp(coreinit_build, "Feb  4 2021")) {
+		are_we_on_555 = true;
+	}
+
 	/* Do the kernel exploit */
-	WiiU::IOSU_Kernel::Exploit();
+	WiiU::IOSU_Kernel::Exploit(are_we_on_555);
 
 	/* If we're still alive, everything went well */
 	OSScreenInit();

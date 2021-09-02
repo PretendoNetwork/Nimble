@@ -187,7 +187,7 @@ int _main() {
 
 	/* No SSL patch */
 	/* 5.5.5 */
-	if(*(uint32_t*)0xE1019F78 == 0xE1A00004) {
+	if(*(uint32_t*)0x00147FFC) {
 		*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
 	} else {
 		*(uint32_t*)(0xE1019E84 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;

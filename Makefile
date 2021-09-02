@@ -66,10 +66,10 @@ INCLUDES	:=  source
 #---------------------------------------------------------------------------------
 CFLAGS	:=  -nostdlib -std=gnu11 -ffunction-sections -fdata-sections \
 		    -mcpu=750 -meabi -mhard-float -ffast-math -O2 \
-		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
+		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread $(INCLUDE)
 CXXFLAGS := -nostdlib -std=gnu++11 -ffunction-sections -fdata-sections \
 		    -mcpu=750 -meabi -mhard-float -ffast-math -O2 \
-		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow $(INCLUDE)
+		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread $(INCLUDE)
 ASFLAGS	:= -mregnames
 LDFLAGS	:= -nostartfiles -Wl,-Map,$(notdir $@).map,--gc-sections,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=aligned_alloc,--wrap=malloc_usable_size,--wrap=memalign,--wrap=posix_memalign,--wrap=pvalloc,--wrap=valloc
 

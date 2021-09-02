@@ -9,7 +9,7 @@
 namespace WiiU {
 	namespace IOSU_Kernel {
 
-		void Exploit(int *confirm = NULL);
+		void Exploit(bool are_we_on_555, int *confirm = NULL);
 	}
 }
 
