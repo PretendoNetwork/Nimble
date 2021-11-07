@@ -14,6 +14,14 @@ _PURPLE=\033[35m
 _CYAN=\033[36m
 _WHITE=\033[37m
 
+ifeq ($(strip $(DEVKITARM)),)
+$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+endif
+
+ifeq ($(filter $(DEVKITARM)/bin,$(PATH)),)
+export PATH:=$(DEVKITARM)/bin:$(PATH)
+endif
+
 #---------------------------------------------------------------------------------
 # Clear the implicit built in rules
 #---------------------------------------------------------------------------------
@@ -25,15 +33,10 @@ endif
 ifeq ($(strip $(DEVKITPRO)),)
 $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPRO")
 endif
-
-UNAME_S	:=	$(shell uname -s)
-
-ifneq (,$(findstring Darwin,$(UNAME_S)))
-	export SHELL=/bin/bash
-endif
-
 export PATH			:=	$(DEVKITPPC)/bin:$(PORTLIBS)/bin:$(PATH)
-export PORTLIBS     := $(DEVKITPRO)/portlibs/wiiu
+export LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
+export LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+export PORTLIBS		:=	$(DEVKITPRO)/portlibs/wiiu
 
 PREFIX	:=	powerpc-eabi-
 
@@ -42,36 +45,31 @@ export CC	:=	$(PREFIX)gcc
 export CXX	:=	$(PREFIX)g++
 export AR	:=	$(PREFIX)ar
 export OBJCOPY	:=	$(PREFIX)objcopy
-
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=	nimble_patcher
-BUILD		:=	build_files
+TARGET		:=	title_patcher
+BUILD		:=	build
 BUILD_DBG	:=	$(TARGET)_dbg
 SOURCES		:=	source \
-				source/wiiu \
-				source/utils \
-
-
-DATA		:=
+				source/titles/
+DATA		:=	
 
 INCLUDES	:=  source
+CWD = "$(CURDIR)""
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	:=  -nostdlib -std=gnu11 -ffunction-sections -fdata-sections \
-		    -mcpu=750 -meabi -mhard-float -ffast-math -Os \
-		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread $(INCLUDE)
-CXXFLAGS := -nostdlib -std=gnu++11 -ffunction-sections -fdata-sections \
-		    -mcpu=750 -meabi -mhard-float -ffast-math -Os \
-		    -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread $(INCLUDE)
+CFLAGS	:=  -D__LOGGING__ -std=gnu11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
+		    -Os -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
+CXXFLAGS := -D__LOGGING__ -std=gnu++11 -mrvl -mcpu=750 -meabi -mhard-float -ffast-math \
+		    -Os -Wall -Wextra -D_GNU_SOURCE -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
 ASFLAGS	:= -mregnames
-LDFLAGS	:= -nostartfiles -Wl,-Map,$(notdir $@).map,--gc-sections,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=aligned_alloc,--wrap=malloc_usable_size,--wrap=memalign,--wrap=posix_memalign,--wrap=pvalloc,--wrap=valloc,--wrap=printf,--wrap=puts
+LDFLAGS	:= -nostartfiles -Wl,-Map,$(notdir $@).map,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=aligned_alloc,--wrap=malloc_usable_size,--wrap=memalign,--wrap=posix_memalign,--wrap=pvalloc,--wrap=valloc,--wrap=printf,--wrap=puts,--gc-sections
 
 #---------------------------------------------------------------------------------
 Q := @
@@ -87,7 +85,7 @@ LIBS	:=
 #---------------------------------------------------------------------------------
 LIBDIRS	:=	$(CURDIR)	\
 			$(DEVKITPPC)/lib  \
-			$(DEVKITPPC)/lib/gcc/powerpc-eabi/8.3.0 \
+			$(DEVKITPPC)/lib/gcc/powerpc-eabi/10.2.0 \
 			$(PORTLIBS)
 
 #---------------------------------------------------------------------------------
@@ -107,7 +105,6 @@ export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 #---------------------------------------------------------------------------------
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
-CCFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cc)))
 sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
@@ -123,13 +120,7 @@ else
 	export LD	:=	$(CXX)
 endif
 
-ifeq ($(strip $(CCFILES)),)
-	export LD	:=	$(CC)
-else
-	export LD	:=	$(CXX)
-endif
-
-export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(CCFILES:.cc=.o) \
+export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 					$(sFILES:.s=.o) $(SFILES:.S=.o) \
 					$(PNGFILES:.png=.png.o) $(addsuffix .o,$(BINFILES))
 
@@ -138,7 +129,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(CCFILES:.cc=.o) \
 #---------------------------------------------------------------------------------
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD) \
+					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC) \
 					-I$(PORTLIBS)/include -I$(PORTLIBS)/include/freetype2 \
 					-I$(PORTLIBS)/include/dynamic_libs \
 					-I$(PORTLIBS)/include/libutils
@@ -147,46 +138,23 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 # build a list of library paths
 #---------------------------------------------------------------------------------
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
-					-L$(PORTLIBS)/lib
+					-L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: clean
-
-debug: CFLAGS += -D__DEBUG__
-debug: CXXFLAGS += -D__DEBUG__
-debug: $(CURDIR)/source/iosu_payload/arm_kernel.h executable_d
-release: $(CURDIR)/source/iosu_payload/arm_kernel.h executable_r
+.PHONY: $(BUILD) clean install
 
 #---------------------------------------------------------------------------------
-
-$(CURDIR)/source/iosu_payload/arm_kernel.h: $(CURDIR)/source/iosu_payload/arm_user.h
-	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel/ -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile
-
-$(CURDIR)/source/iosu_payload/arm_user.h: $(CURDIR)/source/title_patcher.h
-	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user/ -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile
-
-$(CURDIR)/source/title_patcher.h:
-	@$(MAKE) --no-print-directory -C $(CURDIR)/title_patcher/ -f  $(CURDIR)/title_patcher/Makefile
+$(BUILD):
+	@echo -e "\n${_YELLOW}Building title_patcher${_END}"
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 clean:
-	@echo -e "${_CYAN}Cleaning the project${_END}"
-	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile clean
-	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile clean
-	@$(MAKE) --no-print-directory -C $(CURDIR)/title_patcher/ -f  $(CURDIR)/title_patcher/Makefile clean
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h $(CURDIR)/source/title_patcher.h
-#---------------------------------------------------------------------------------
-executable_d: $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
-	@echo -e "\n${_YELLOW}Building for dev/debug${_END}"
-	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
-	@$(MAKE) debug --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-#---------------------------------------------------------------------------------
-executable_r: $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
-	@echo -e "\n${_YELLOW}Building for release${_END}"
-	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
-	@$(MAKE) release --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-#---------------------------------------------------------------------------------
+	@echo -e "${_CYAN}Cleaning title_patcher${_END}"
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(OUTPUT)_bin.h
 
+#---------------------------------------------------------------------------------
 else
 
 DEPENDS	:=	$(OFILES:.o=.d)
@@ -199,16 +167,12 @@ $(OUTPUT).elf:  $(OFILES)
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .jpg extension
 #---------------------------------------------------------------------------------
-
-debug: CFLAGS += -D__DEBUG__
-debug: CXXFLAGS += -D__DEBUG__
-debug: $(OUTPUT).elf
-release: $(OUTPUT).elf
-
 %.elf: link.ld $(OFILES)
 	@echo -e "${_PURPLE}[LD]${_END}  Linking ${_CYAN}$(notdir $@)${_END}.."
 	$(Q)$(LD) -n -T $^ $(LDFLAGS) -o ../$(BUILD_DBG).elf  $(LIBPATHS) $(LIBS)
 	$(Q)$(OBJCOPY) -S -R .comment -R .gnu.attributes ../$(BUILD_DBG).elf $@
+	@cd $(CURDIR)/../ && xxd -i $(TARGET).elf | sed "s/unsigned/static const unsigned/g;s/$(TARGET)title_launcher_bin/$(TARGET)/g" > $(TARGET)_bin.h
+	@cd $(CURDIR)/../ && cp $(TARGET)_bin.h ../source/$(TARGET).h
 
 #---------------------------------------------------------------------------------
 %.a:
@@ -233,7 +197,7 @@ release: $(OUTPUT).elf
 	@$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@ $(ERROR_FILTER)
 
 #---------------------------------------------------------------------------------
-%.o: %.S
+%.o: %.s
 	@echo  -e "${_RED}[ASM]${_END} Building ${_CYAN}$(notdir $<)${_END}.."
 	@$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(ASFLAGS) -c $< -o $@ $(ERROR_FILTER)
 #---------------------------------------------------------------------------------

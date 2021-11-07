@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern "C" void *memcpy(void *dest, const void * src, size_t n);
-extern "C" void *memset(void *str, int c, size_t n);
+void *memcpy(void *dest, const void * src, size_t n);
+void *memset(void *str, int c, size_t n);
 
 extern int (*OSDynLoad_Acquire)(const char *dynLoadExeName, uint32_t *outHandle);
 extern int (*OSDynLoad_FindExport)(uint32_t handle, bool isFromDataSection, const char * name, void **fpptr);
@@ -38,18 +38,7 @@ extern int (*OSDynLoad_FindExport)(uint32_t handle, bool isFromDataSection, cons
 #define SO_MYADDR       0x1013
 #define SO_RCVTIMEO     0x1006
 
-namespace WiiU {
-	namespace Symbols {
-	
-		/**
-		* @brief  It will load our needed OS functions pointer with dynamic linking
-		* @note   
-		* @retval None
-		*/
-		void LoadWiiUSymbols();
-
-	}
-}
+void LoadWiiUSymbols();
 
 #define C_UNLESS(expr, code) \
 	({ \
@@ -64,11 +53,6 @@ namespace WiiU {
 			return res; \
 		} \
 	})
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct in_addr {
 	uint32_t s_addr;
@@ -454,10 +438,8 @@ extern ProcUIStatus (*ProcUIProcessMessages)(bool block);
 
 extern void (*GX2WaitForVsync)(void);
 
-#ifdef __cplusplus
-}
-#endif
-
 #define LOAD_FUNC(mod, x) ((__load_from_module(mod, # x, (void**)&x)))
+
+void KernelCopyData(unsigned int addr, unsigned int src, unsigned int len);
 
 #endif

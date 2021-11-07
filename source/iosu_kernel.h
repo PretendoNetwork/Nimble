@@ -1,17 +1,12 @@
 #ifndef __IOSU_MQ_EXP
 #define __IOSU_MQ_EXP
 
-#include "../utils.h"
+#include "symbols.h"
 #include "debugger.h"
-#include "../iosu_payload/arm_user.h"
-#include "../iosu_payload/arm_kernel.h"
+#include "iosu_payload/arm_user.h"
+#include "iosu_payload/arm_kernel.h"
 
-namespace WiiU {
-	namespace IOSU_Kernel {
-
-		void Exploit(bool are_we_on_555, int *confirm = NULL);
-	}
-}
+void IOSU_Kernel_Exploit(bool are_we_on_555, int *confirm);
 
 #define USB_EndTextSection				0x101312D0
 #define USB_Memcpy						0x10106D4C // bl usb_memcpy; mov r0, #0; pop {r4, r5, pc};

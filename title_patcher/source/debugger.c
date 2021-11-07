@@ -20,23 +20,23 @@ OSMutex __debug_logger_mutex;
 
 bool ExcDSI(OSContext *ctx)
 {
-	WiiU::Exception::ExceptionHandler("DSI", ctx);
+	Exception_ExceptionHandler("DSI", ctx);
 	return true;
 }
 
 bool ExcISI(OSContext *ctx)
 {
-	WiiU::Exception::ExceptionHandler("ISI", ctx);
+	Exception_ExceptionHandler("ISI", ctx);
 	return true;
 }
 
 bool ExcProgram(OSContext *ctx)
 {
-	WiiU::Exception::ExceptionHandler("Program", ctx);
+	Exception_ExceptionHandler("Program", ctx);
 	return true;
 }
 
-void WiiU::Debugger::Start()
+void Debugger_Start()
 {
 
 	int broadcastEnable = 1;
@@ -51,25 +51,13 @@ void WiiU::Debugger::Start()
 
 	OSInitMutexEx(&__debug_logger_mutex, "Debug Log I/O Mutex");
 
-#ifdef __DEBUG__
-
-	WiiU::Debugger::Log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	WiiU::Debugger::Logf("Started debug logger.\nProject: %s v%d.%d.%d-%s by %s\n\n\n\n",
-	PROJECT_NAME,
-	PROJECT_VER_MAJOR,
-	PROJECT_VER_VERSION,
-	PROJECT_VER_MINOR,
-	PROJECT_VER_DISC,
-	PROJECT_AUTHOR);
-
 	OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_DSI, (void*)ExcDSI);
 	OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_ISI, (void*)ExcISI);
 	OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_PROGRAM, (void*)ExcProgram);
-#endif
 
 }
 
-void WiiU::Debugger::Log(const char *txt)
+void Debugger_Log(const char *txt)
 {
 
 	OSLockMutex(&__debug_logger_mutex);
@@ -92,36 +80,29 @@ void WiiU::Debugger::Log(const char *txt)
 
 }
 
-void WiiU::Debugger::Logf(const char *fmt, ...)
+void Debugger_Logf(const char *fmt, ...)
 {
 
 	va_list va;
-	char *buf1 = (char*)malloc(0x800);
-	char *buf2 = (char*)malloc(0x800);
+	char buf1[0x800];
 	
 	va_start(va, fmt);
-
 	vsnprintf(buf1, 0x800, fmt, va);
-	__os_snprintf(buf2, 0x800, "%s%s%s", _GREEN, buf1, _END);
-	
-	WiiU::Debugger::Log(buf2);
-	free(buf1);
-	free(buf2);
-
+	Debugger_Log(buf1);
 	va_end(va);
 
 }
 
-void WiiU::Exception::ExceptionHandler(const char *type, OSContext *context)
+void Exception_ExceptionHandler(const char *type, OSContext *context)
 {
 
-	char *symbolname = (char*)malloc(129);
+	char symbolname[128];
 
 	bool valid = OSIsAddressValid(context->srr0);
 	C_UNLESS(!valid, OSGetSymbolName(context->srr0, symbolname, 128));
 	C_UNLESS(valid, memcpy(symbolname, "No symbol detected", 19));
 	
-	char *buffer = (char*)malloc(2049);
+	char buffer[2048];
 	__os_snprintf(buffer, 2048,	"Exception: %s - in %s\n"
 								"Title ID: %016llX | Core: %d | UPID: %d\n\n"
 								""
@@ -155,7 +136,25 @@ void WiiU::Exception::ExceptionHandler(const char *type, OSContext *context)
 								10, context->gpr[10], 21, context->gpr[21], context->lr,
 								context->srr0, context->dar, context->dsisr);
 
-	WiiU::Debugger::Log(buffer);
+	Debugger_Log(buffer);
 	OSFatal(buffer);
 
+}
+
+int __wrap_printf(const char* fmt, ...) {
+
+	va_list va;
+	char buf1[0x800];
+	
+	va_start(va, fmt);
+	int ret = vsnprintf(buf1, 0x800, fmt, va);
+	Debugger_Log(buf1);
+	va_end(va);
+	return ret;
+}
+
+int __wrap_puts(const char* txt) {
+	Debugger_Log(txt);
+	Debugger_Log("\n");
+	return strlen(txt);
 }

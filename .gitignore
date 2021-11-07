@@ -1,9 +1,13 @@
 build_files/
 build/
+title_patcher/build/
+
+.git
+.vscode
 
 arm_*.elf
 arm_*.bin
 arm_*_bin.h
 *.map
-
-iosu_payload/
+*_bin.h
+title_*.elf

@@ -96,15 +96,15 @@ void (*GX2WaitForVsync)(void);
 * https://www.gnu.org/software/libc/manual/html_node/Replacing-malloc.html
 */
 
-extern "C" void *__wrap_malloc(size_t size) {
+void *__wrap_malloc(size_t size) {
 	return memoryAlloc(size);
 }
 
-extern "C" void __wrap_free(void *ptr) {
+void __wrap_free(void *ptr) {
 	memoryFree(ptr);
 }
 
-extern "C" void *__wrap_calloc(size_t nmemb, size_t size) {
+void *__wrap_calloc(size_t nmemb, size_t size) {
 	void *ptr = __wrap_malloc(nmemb * size);
 	if(ptr) {
 		memset(ptr, 0, nmemb * size);
@@ -113,7 +113,7 @@ extern "C" void *__wrap_calloc(size_t nmemb, size_t size) {
 }
 
 // http://www.beedub.com/Sprite093/src/lib/c/stdlib/realloc.c
-extern "C" void *__wrap_realloc(char *ptr, size_t newSize) {
+void *__wrap_realloc(char *ptr, size_t newSize) {
 
 	void *newPtr;
 
@@ -128,7 +128,7 @@ extern "C" void *__wrap_realloc(char *ptr, size_t newSize) {
 	return newPtr;
 }
 
-extern "C" void *__wrap_aligned_alloc(size_t alignment, size_t size) {
+void *__wrap_aligned_alloc(size_t alignment, size_t size) {
 
 	if(alignment < 4)
 		alignment = 4;
@@ -137,15 +137,15 @@ extern "C" void *__wrap_aligned_alloc(size_t alignment, size_t size) {
 	
 }
 
-extern "C" size_t __wrap_malloc_usable_size(void *p) {
+size_t __wrap_malloc_usable_size(void *p) {
 	return 0x7FFFFFFF;
 }
 
-extern "C" void *__wrap_memalign(size_t alignment, size_t size) {
+void *__wrap_memalign(size_t alignment, size_t size) {
 	return __wrap_aligned_alloc(alignment, size);
 }
 
-extern "C" int __wrap_posix_memalign(void **memptr, size_t alignment, size_t size) {
+int __wrap_posix_memalign(void **memptr, size_t alignment, size_t size) {
 
 	if(size == 0)
 		*memptr = NULL;
@@ -155,27 +155,22 @@ extern "C" int __wrap_posix_memalign(void **memptr, size_t alignment, size_t siz
 	return 0;
 }
 
-extern "C" void *__wrap_pvalloc(size_t size) {
+void *__wrap_pvalloc(size_t size) {
 	return __wrap_aligned_alloc(0x1000, size);
 }
 
-extern "C" void *__wrap_valloc(size_t size) {
+void *__wrap_valloc(size_t size) {
 	return __wrap_aligned_alloc(0x1000, size);
 }
 
-void WiiU::Symbols::LoadWiiUSymbols() {
+void LoadWiiUSymbols() {
 
 	OSDynLoad_Acquire = (int (*)(const char *, uint32_t *))0x0102A3B4;
 	OSDynLoad_FindExport = (int (*)(uint32_t, bool, const char *, void **))0x0102B828;
 
-	uint32_t __rpl_coreinit, __rpl_nsysnet, __rpl_sysapp, __rpl_vpad, __rpl_nn_save, __rpl_proc_ui, __rpl_gx2;
+	uint32_t __rpl_coreinit, __rpl_nsysnet;
 	OSDynLoad_Acquire("coreinit.rpl", &__rpl_coreinit);
 	OSDynLoad_Acquire("nsysnet.rpl", &__rpl_nsysnet);
-	OSDynLoad_Acquire("sysapp.rpl", &__rpl_sysapp);
-	OSDynLoad_Acquire("vpad.rpl", &__rpl_vpad);
-	OSDynLoad_Acquire("nn_save.rpl", &__rpl_nn_save);
-	OSDynLoad_Acquire("proc_ui.rpl", &__rpl_proc_ui);
-	OSDynLoad_Acquire("gx2.rpl", &__rpl_gx2);
 
 	LOAD_FUNC(__rpl_coreinit, FSInit);
 	LOAD_FUNC(__rpl_coreinit, FSAddClient);
@@ -245,17 +240,61 @@ void WiiU::Symbols::LoadWiiUSymbols() {
 	LOAD_FUNC(__rpl_coreinit, OSGetCoreId);
 	LOAD_FUNC(__rpl_coreinit, OSGetUPID);
 
-	LOAD_FUNC(__rpl_sysapp, SYSCheckTitleExists);
-	LOAD_FUNC(__rpl_sysapp, SYSLaunchMenu);
-	LOAD_FUNC(__rpl_sysapp, SYSLaunchTitle);
-
-	LOAD_FUNC(__rpl_vpad, VPADRead);
-
-	LOAD_FUNC(__rpl_nn_save, SAVEOpenFile);
-
-	LOAD_FUNC(__rpl_proc_ui, ProcUIProcessMessages);
-
-	LOAD_FUNC(__rpl_gx2, GX2WaitForVsync);
-
 	socket_lib_init();
+
+}
+
+#define ROOTRPX_DBAT0U_VAL       0xC00003FF
+#define COREINIT_DBAT0U_VAL      0xC20001FF
+#define ROOTRPX_DBAT0L_VAL       0x30000012
+#define COREINIT_DBAT0L_VAL      0x32000012
+
+void KernelCopyData(unsigned int addr, unsigned int src, unsigned int len)
+{
+    /*
+     * Setup a DBAT access for our 0xC0800000 area and our 0xBC000000 area which hold our variables like GAME_LAUNCHED and our BSS/rodata section
+     */
+    register unsigned int dbatu0, dbatl0, target_dbat0u = 0, target_dbat0l = 0;
+    // setup mapping based on target address
+    if ((addr >= 0xC0000000) && (addr < 0xC2000000)) // root.rpx address
+    {
+        target_dbat0u = ROOTRPX_DBAT0U_VAL;
+        target_dbat0l = ROOTRPX_DBAT0L_VAL;
+    }
+    else if ((addr >= 0xC2000000) && (addr < 0xC3000000))
+    {
+        target_dbat0u = COREINIT_DBAT0U_VAL;
+        target_dbat0l = COREINIT_DBAT0L_VAL;
+    }
+    // save the original DBAT value
+    asm volatile("mfdbatu %0, 0" : "=r" (dbatu0));
+    asm volatile("mfdbatl %0, 0" : "=r" (dbatl0));
+    asm volatile("mtdbatu 0, %0" : : "r" (target_dbat0u));
+    asm volatile("mtdbatl 0, %0" : : "r" (target_dbat0l));
+    asm volatile("eieio; isync");
+
+    unsigned char *src_p = (unsigned char*)src;
+    unsigned char *dst_p = (unsigned char*)addr;
+
+    unsigned int i;
+    for(i = 0; i < len; i++)
+    {
+        dst_p[i] = src_p[i];
+    }
+
+    unsigned int flushAddr = addr & ~31;
+
+    while(flushAddr < (addr + len))
+    {
+        asm volatile("dcbf 0, %0; sync" : : "r"(flushAddr));
+        flushAddr += 0x20;
+    }
+
+    /*
+     * Restore original DBAT value
+     */
+    asm volatile("mtdbatu 0, %0" : : "r" (dbatu0));
+    asm volatile("mtdbatl 0, %0" : : "r" (dbatl0));
+    asm volatile("eieio; isync");
+
 }

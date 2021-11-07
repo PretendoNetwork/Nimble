@@ -13,7 +13,7 @@ int USB_Write32(int fd, uint32_t *someOtherPointer, uint32_t addr, uint32_t valu
 
 }
 
-void WiiU::IOSU_Kernel::Exploit(bool are_we_on_555, int *confirm) {
+void IOSU_Kernel_Exploit(bool are_we_on_555, int *confirm) {
 
 	/* Stack Pivot ROP Chain starts at 0x1016AD78 */
 	uint32_t *firstRopChain = (uint32_t*)0xF4120000;
@@ -251,11 +251,7 @@ void WiiU::IOSU_Kernel::Exploit(bool are_we_on_555, int *confirm) {
 
 	if(rc == 1337 && confirm) {
 		*confirm = 1;
-
-#ifdef __DEBUG__
-		WiiU::Debugger::Log("IOSU Exploit worked\n");
-#endif
-
+		printf("IOSU Exploit worked\n");
 	}
 
 	IOS_Close(fd);
