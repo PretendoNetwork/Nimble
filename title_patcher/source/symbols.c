@@ -4,8 +4,8 @@ int (*OSDynLoad_Acquire)(const char *dynLoadExeName, uint32_t *outHandle);
 int (*OSDynLoad_FindExport)(uint32_t handle, bool isFromDataSection, const char * name, void **fpptr);
 
 void __load_from_module(uint32_t module, const char *symbol, void **f) {
-	OSDynLoad_FindExport(module, false, symbol, (void**)f);
-	C_UNLESS(*f, OSFatal(symbol));
+    OSDynLoad_FindExport(module, false, symbol, (void**)f);
+    C_UNLESS(*f, OSFatal(symbol));
 }
 
 void* (*memoryAllocAlign)(size_t align, size_t size) = (void *(*)(size_t, size_t))0x1048d10;
@@ -97,150 +97,150 @@ void (*GX2WaitForVsync)(void);
 */
 
 void *__wrap_malloc(size_t size) {
-	return memoryAlloc(size);
+    return memoryAlloc(size);
 }
 
 void __wrap_free(void *ptr) {
-	memoryFree(ptr);
+    memoryFree(ptr);
 }
 
 void *__wrap_calloc(size_t nmemb, size_t size) {
-	void *ptr = __wrap_malloc(nmemb * size);
-	if(ptr) {
-		memset(ptr, 0, nmemb * size);
-	}
-	return ptr;
+    void *ptr = __wrap_malloc(nmemb * size);
+    if(ptr) {
+        memset(ptr, 0, nmemb * size);
+    }
+    return ptr;
 }
 
 // http://www.beedub.com/Sprite093/src/lib/c/stdlib/realloc.c
 void *__wrap_realloc(char *ptr, size_t newSize) {
 
-	void *newPtr;
+    void *newPtr;
 
-	if (ptr == 0) {
-		return __wrap_malloc(newSize);
-	}
+    if (ptr == 0) {
+        return __wrap_malloc(newSize);
+    }
 
-	newPtr = __wrap_malloc(newSize);
-	memcpy(newPtr, ptr, newSize);
-	__wrap_free(ptr);
+    newPtr = __wrap_malloc(newSize);
+    memcpy(newPtr, ptr, newSize);
+    __wrap_free(ptr);
 
-	return newPtr;
+    return newPtr;
 }
 
 void *__wrap_aligned_alloc(size_t alignment, size_t size) {
 
-	if(alignment < 4)
-		alignment = 4;
+    if(alignment < 4)
+        alignment = 4;
 
-	return memoryAllocAlign(size, alignment);
-	
+    return memoryAllocAlign(size, alignment);
+    
 }
 
 size_t __wrap_malloc_usable_size(void *p) {
-	return 0x7FFFFFFF;
+    return 0x7FFFFFFF;
 }
 
 void *__wrap_memalign(size_t alignment, size_t size) {
-	return __wrap_aligned_alloc(alignment, size);
+    return __wrap_aligned_alloc(alignment, size);
 }
 
 int __wrap_posix_memalign(void **memptr, size_t alignment, size_t size) {
 
-	if(size == 0)
-		*memptr = NULL;
-	else
-		*memptr = __wrap_aligned_alloc(alignment, size);
+    if(size == 0)
+        *memptr = NULL;
+    else
+        *memptr = __wrap_aligned_alloc(alignment, size);
 
-	return 0;
+    return 0;
 }
 
 void *__wrap_pvalloc(size_t size) {
-	return __wrap_aligned_alloc(0x1000, size);
+    return __wrap_aligned_alloc(0x1000, size);
 }
 
 void *__wrap_valloc(size_t size) {
-	return __wrap_aligned_alloc(0x1000, size);
+    return __wrap_aligned_alloc(0x1000, size);
 }
 
 void LoadWiiUSymbols() {
 
-	OSDynLoad_Acquire = (int (*)(const char *, uint32_t *))0x0102A3B4;
-	OSDynLoad_FindExport = (int (*)(uint32_t, bool, const char *, void **))0x0102B828;
+    OSDynLoad_Acquire = (int (*)(const char *, uint32_t *))0x0102A3B4;
+    OSDynLoad_FindExport = (int (*)(uint32_t, bool, const char *, void **))0x0102B828;
 
-	uint32_t __rpl_coreinit, __rpl_nsysnet;
-	OSDynLoad_Acquire("coreinit.rpl", &__rpl_coreinit);
-	OSDynLoad_Acquire("nsysnet.rpl", &__rpl_nsysnet);
+    uint32_t __rpl_coreinit, __rpl_nsysnet;
+    OSDynLoad_Acquire("coreinit.rpl", &__rpl_coreinit);
+    OSDynLoad_Acquire("nsysnet.rpl", &__rpl_nsysnet);
 
-	LOAD_FUNC(__rpl_coreinit, FSInit);
-	LOAD_FUNC(__rpl_coreinit, FSAddClient);
-	LOAD_FUNC(__rpl_coreinit, FSInitCmdBlock);
-	LOAD_FUNC(__rpl_coreinit, FSOpenFile);
-	LOAD_FUNC(__rpl_coreinit, FSCloseFile);
-	LOAD_FUNC(__rpl_coreinit, FSOpenDir);
-	LOAD_FUNC(__rpl_coreinit, FSReadDir);
-	LOAD_FUNC(__rpl_coreinit, FSCloseDir);
-	LOAD_FUNC(__rpl_coreinit, FSGetStat);
-	LOAD_FUNC(__rpl_coreinit, FSGetStatFile);
-	LOAD_FUNC(__rpl_coreinit, FSWriteFile);
-	LOAD_FUNC(__rpl_coreinit, FSReadFile);
-	LOAD_FUNC(__rpl_coreinit, FSReadFileWithPos);
-	LOAD_FUNC(__rpl_coreinit, FSSetPosFile);
-	LOAD_FUNC(__rpl_coreinit, FSGetMountSource);
-	LOAD_FUNC(__rpl_coreinit, FSMount);
-	LOAD_FUNC(__rpl_coreinit, FSGetPosFile);
+    LOAD_FUNC(__rpl_coreinit, FSInit);
+    LOAD_FUNC(__rpl_coreinit, FSAddClient);
+    LOAD_FUNC(__rpl_coreinit, FSInitCmdBlock);
+    LOAD_FUNC(__rpl_coreinit, FSOpenFile);
+    LOAD_FUNC(__rpl_coreinit, FSCloseFile);
+    LOAD_FUNC(__rpl_coreinit, FSOpenDir);
+    LOAD_FUNC(__rpl_coreinit, FSReadDir);
+    LOAD_FUNC(__rpl_coreinit, FSCloseDir);
+    LOAD_FUNC(__rpl_coreinit, FSGetStat);
+    LOAD_FUNC(__rpl_coreinit, FSGetStatFile);
+    LOAD_FUNC(__rpl_coreinit, FSWriteFile);
+    LOAD_FUNC(__rpl_coreinit, FSReadFile);
+    LOAD_FUNC(__rpl_coreinit, FSReadFileWithPos);
+    LOAD_FUNC(__rpl_coreinit, FSSetPosFile);
+    LOAD_FUNC(__rpl_coreinit, FSGetMountSource);
+    LOAD_FUNC(__rpl_coreinit, FSMount);
+    LOAD_FUNC(__rpl_coreinit, FSGetPosFile);
 
-	LOAD_FUNC(__rpl_coreinit, IOS_Open);
-	LOAD_FUNC(__rpl_coreinit, IOS_Close);
-	LOAD_FUNC(__rpl_coreinit, IOS_Ioctl);
+    LOAD_FUNC(__rpl_coreinit, IOS_Open);
+    LOAD_FUNC(__rpl_coreinit, IOS_Close);
+    LOAD_FUNC(__rpl_coreinit, IOS_Ioctl);
 
-	LOAD_FUNC(__rpl_coreinit, OSCreateThread);
-	LOAD_FUNC(__rpl_coreinit, OSJoinThread);
-	LOAD_FUNC(__rpl_coreinit, OSResumeThread);
-	LOAD_FUNC(__rpl_coreinit, OSGetCurrentThread);
-	LOAD_FUNC(__rpl_coreinit, OSExitThread);
-	LOAD_FUNC(__rpl_coreinit, OSSetThreadName);
-	LOAD_FUNC(__rpl_coreinit, OSSleepTicks);
+    LOAD_FUNC(__rpl_coreinit, OSCreateThread);
+    LOAD_FUNC(__rpl_coreinit, OSJoinThread);
+    LOAD_FUNC(__rpl_coreinit, OSResumeThread);
+    LOAD_FUNC(__rpl_coreinit, OSGetCurrentThread);
+    LOAD_FUNC(__rpl_coreinit, OSExitThread);
+    LOAD_FUNC(__rpl_coreinit, OSSetThreadName);
+    LOAD_FUNC(__rpl_coreinit, OSSleepTicks);
 
-	LOAD_FUNC(__rpl_coreinit, OSScreenInit);
-	LOAD_FUNC(__rpl_coreinit, OSScreenShutdown);
-	LOAD_FUNC(__rpl_coreinit, OSScreenGetBufferSizeEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenSetBufferEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenClearBufferEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenFlipBuffersEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenPutFontEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenPutPixelEx);
-	LOAD_FUNC(__rpl_coreinit, OSScreenEnableEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenInit);
+    LOAD_FUNC(__rpl_coreinit, OSScreenShutdown);
+    LOAD_FUNC(__rpl_coreinit, OSScreenGetBufferSizeEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenSetBufferEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenClearBufferEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenFlipBuffersEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenPutFontEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenPutPixelEx);
+    LOAD_FUNC(__rpl_coreinit, OSScreenEnableEx);
 
-	LOAD_FUNC(__rpl_coreinit, __OSPhysicalToEffectiveCached);
-	LOAD_FUNC(__rpl_coreinit, OSEffectiveToPhysical);
-	LOAD_FUNC(__rpl_coreinit, DCInvalidateRange);
-	LOAD_FUNC(__rpl_coreinit, DCFlushRange);
-	LOAD_FUNC(__rpl_coreinit, DCStoreRange);
-	LOAD_FUNC(__rpl_coreinit, ICInvalidateRange);
-	LOAD_FUNC(__rpl_coreinit, OSMemoryBarrier);
+    LOAD_FUNC(__rpl_coreinit, __OSPhysicalToEffectiveCached);
+    LOAD_FUNC(__rpl_coreinit, OSEffectiveToPhysical);
+    LOAD_FUNC(__rpl_coreinit, DCInvalidateRange);
+    LOAD_FUNC(__rpl_coreinit, DCFlushRange);
+    LOAD_FUNC(__rpl_coreinit, DCStoreRange);
+    LOAD_FUNC(__rpl_coreinit, ICInvalidateRange);
+    LOAD_FUNC(__rpl_coreinit, OSMemoryBarrier);
 
-	LOAD_FUNC(__rpl_nsysnet, socket_lib_init);
-	LOAD_FUNC(__rpl_nsysnet, socket_lib_finish);
-	LOAD_FUNC(__rpl_nsysnet, socket);
-	LOAD_FUNC(__rpl_nsysnet, socketclose);
-	LOAD_FUNC(__rpl_nsysnet, connect);
-	LOAD_FUNC(__rpl_nsysnet, sendto);
-	LOAD_FUNC(__rpl_nsysnet, setsockopt);
+    LOAD_FUNC(__rpl_nsysnet, socket_lib_init);
+    LOAD_FUNC(__rpl_nsysnet, socket_lib_finish);
+    LOAD_FUNC(__rpl_nsysnet, socket);
+    LOAD_FUNC(__rpl_nsysnet, socketclose);
+    LOAD_FUNC(__rpl_nsysnet, connect);
+    LOAD_FUNC(__rpl_nsysnet, sendto);
+    LOAD_FUNC(__rpl_nsysnet, setsockopt);
 
-	LOAD_FUNC(__rpl_coreinit, OSInitMutexEx);
-	LOAD_FUNC(__rpl_coreinit, OSLockMutex);
-	LOAD_FUNC(__rpl_coreinit, OSUnlockMutex);
+    LOAD_FUNC(__rpl_coreinit, OSInitMutexEx);
+    LOAD_FUNC(__rpl_coreinit, OSLockMutex);
+    LOAD_FUNC(__rpl_coreinit, OSUnlockMutex);
 
-	LOAD_FUNC(__rpl_coreinit, OSSetExceptionCallbackEx);
+    LOAD_FUNC(__rpl_coreinit, OSSetExceptionCallbackEx);
 
-	LOAD_FUNC(__rpl_coreinit, OSIsAddressValid);
-	LOAD_FUNC(__rpl_coreinit, OSGetSymbolName);
-	LOAD_FUNC(__rpl_coreinit, OSGetTitleID);
-	LOAD_FUNC(__rpl_coreinit, OSGetCoreId);
-	LOAD_FUNC(__rpl_coreinit, OSGetUPID);
+    LOAD_FUNC(__rpl_coreinit, OSIsAddressValid);
+    LOAD_FUNC(__rpl_coreinit, OSGetSymbolName);
+    LOAD_FUNC(__rpl_coreinit, OSGetTitleID);
+    LOAD_FUNC(__rpl_coreinit, OSGetCoreId);
+    LOAD_FUNC(__rpl_coreinit, OSGetUPID);
 
-	socket_lib_init();
+    socket_lib_init();
 
 }
 

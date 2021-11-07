@@ -4,30 +4,30 @@ OUTPUT(title_patcher.elf);
 ENTRY(__entry_menu);
 
 SECTIONS {
-	. = 0x00C42080;
-	
-	.text : {
-		*(.text*);
-	}
+    . = 0x00C42080;
+    
+    .text : {
+        *(.text*);
+    }
 
-	.rodata : {
-		*(.rodata*);
-	}
+    .rodata : {
+        *(.rodata*);
+    }
 
-	.data : {
-		*(.data*);
-		*(.sdata*);
-		*(.sdata2*);
-	}
+    .data : {
+        *(.data*);
+        *(.sdata*);
+        *(.sdata2*);
+    }
 
-	.bss : {
-		*(.bss*);
-		*(.sbss*);
-		*(COMMON);
-	}
-	__CODE_END = .;
+    .bss : {
+        *(.bss*);
+        *(.sbss*);
+        *(COMMON);
+    }
+    __CODE_END = .;
 
-	/DISCARD/ : {
-		*(*);
-	}
+    /DISCARD/ : {
+        *(*);
+    }
 }

@@ -41,28 +41,28 @@ extern int (*OSDynLoad_FindExport)(uint32_t handle, bool isFromDataSection, cons
 void LoadWiiUSymbols();
 
 #define C_UNLESS(expr, code) \
-	({ \
-		if (!(expr)) { \
-			code; \
-		} \
-	})
+    ({ \
+        if (!(expr)) { \
+            code; \
+        } \
+    })
 
 #define R_UNLESS(expr, res) \
-	({ \
-		if (!(expr)) { \
-			return res; \
-		} \
-	})
+    ({ \
+        if (!(expr)) { \
+            return res; \
+        } \
+    })
 
 typedef struct in_addr {
-	uint32_t s_addr;
+    uint32_t s_addr;
 } in_addr;
 
 typedef struct sockaddr_in {
-	int16_t sin_family;
-	uint16_t sin_port;
-	in_addr sin_addr;
-	char sin_zero[8];
+    int16_t sin_family;
+    uint16_t sin_port;
+    in_addr sin_addr;
+    char sin_zero[8];
 } sockaddr_in;
 
 #define VPAD_BUTTON_A        0x8000
@@ -212,34 +212,34 @@ typedef enum OSExceptionType
 
 typedef struct OSContext {
 
-	uint64_t tag;
-	uint32_t gpr[32];
-	uint32_t cr;
-	uint32_t lr;
-	uint32_t ctr;
-	uint32_t xer;
-	uint32_t srr0;
-	uint32_t srr1;
-	uint32_t dsisr;
-	uint32_t dar;
-	char a[12];
-	uint32_t fpscr;
-	double fpr[32];
-	uint16_t spinLockCount;
-	uint16_t state;
-	uint32_t gqr[8];
-	char b[4];
-	double psf[32];
-	uint64_t coretime[3];
-	uint64_t starttime;
-	uint32_t error;
-	char c[4];
-	uint32_t pmc1;
-	uint32_t pmc2;
-	uint32_t pmc3;
-	uint32_t pmc4;
-	uint32_t mmcr0;
-	uint32_t mmcr1;
+    uint64_t tag;
+    uint32_t gpr[32];
+    uint32_t cr;
+    uint32_t lr;
+    uint32_t ctr;
+    uint32_t xer;
+    uint32_t srr0;
+    uint32_t srr1;
+    uint32_t dsisr;
+    uint32_t dar;
+    char a[12];
+    uint32_t fpscr;
+    double fpr[32];
+    uint16_t spinLockCount;
+    uint16_t state;
+    uint32_t gqr[8];
+    char b[4];
+    double psf[32];
+    uint64_t coretime[3];
+    uint64_t starttime;
+    uint32_t error;
+    char c[4];
+    uint32_t pmc1;
+    uint32_t pmc2;
+    uint32_t pmc3;
+    uint32_t pmc4;
+    uint32_t mmcr0;
+    uint32_t mmcr1;
 
 } OSContext;
 
@@ -259,7 +259,7 @@ typedef struct OSThread {
 
     char _[0x394 - 0x330 - 8];
     void *thread_next;
-	void *thread_prev;
+    void *thread_prev;
 
     void *stackBase;
     void *stackEnd;
@@ -272,23 +272,23 @@ typedef struct OSThread {
 
 typedef struct OSThreadQueue {
 
-	OSThread *head;
-	OSThread *tail;
-	void *parent;
-	uint32_t unk;
+    OSThread *head;
+    OSThread *tail;
+    void *parent;
+    uint32_t unk;
 
 } OSThreadQueue;
 
 typedef struct OSMutex {
 
-	uint32_t tag;
-	const char *name;
-	uint32_t unk;
-	OSThreadQueue queue;
-	OSThread *owner;
-	int32_t count;
-	void *next;
-	void *prev;
+    uint32_t tag;
+    const char *name;
+    uint32_t unk;
+    OSThreadQueue queue;
+    OSThread *owner;
+    int32_t count;
+    void *next;
+    void *prev;
 
 } OSMutex;
 
@@ -308,50 +308,50 @@ typedef enum FSMode
 } FSMode;
 
 typedef struct FSClient {
-	char unk[0x1700];
+    char unk[0x1700];
 } FSClient;
 
 typedef struct FSCmdBlock {
-	char unk[0xA80];
+    char unk[0xA80];
 } FSCmdBlock;
 
 typedef struct  __attribute__((__packed__)) FSStat {
-	uint32_t flags;
-	FSMode mode;
-	uint32_t owner;
-	uint32_t group;
-	uint32_t size;
-	uint32_t allocSize;
-	uint64_t quotaSize;
-	uint32_t entryId;
-	int64_t created;
-	int64_t modified;
-	char unk[0x30];
+    uint32_t flags;
+    FSMode mode;
+    uint32_t owner;
+    uint32_t group;
+    uint32_t size;
+    uint32_t allocSize;
+    uint64_t quotaSize;
+    uint32_t entryId;
+    int64_t created;
+    int64_t modified;
+    char unk[0x30];
 } FSStat;
 
 typedef enum ProcUICallbackType {
 
-	PROCUI_CALLBACK_ACQUIRE,
-	PROCUI_CALLBACK_RELEASE,
-	PROCUI_CALLBACK_EXIT,
-	PROCUI_CALLBACK_NET_IO_START,
-	PROCUI_CALLBACK_NET_IO_STOP,
-	PROCUI_CALLBACK_HOME_BUTTON_DENIED,
+    PROCUI_CALLBACK_ACQUIRE,
+    PROCUI_CALLBACK_RELEASE,
+    PROCUI_CALLBACK_EXIT,
+    PROCUI_CALLBACK_NET_IO_START,
+    PROCUI_CALLBACK_NET_IO_STOP,
+    PROCUI_CALLBACK_HOME_BUTTON_DENIED,
 
 } ProcUICallbackType;
 
 typedef enum ProcUIStatus {
 
-	PROCUI_STATUS_IN_FOREGROUND,
-	PROCUI_STATUS_IN_BACKGROUND,
-	PROCUI_STATUS_RELEASE_FOREGROUND,
-	PROCUI_STATUS_EXITING,
+    PROCUI_STATUS_IN_FOREGROUND,
+    PROCUI_STATUS_IN_BACKGROUND,
+    PROCUI_STATUS_RELEASE_FOREGROUND,
+    PROCUI_STATUS_EXITING,
 
 } ProcUIStatus;
 
 typedef struct FSDirEntry {
-	FSStat stat;
-	char name[256];
+    FSStat stat;
+    char name[256];
 } FSDirEntry;
 
 

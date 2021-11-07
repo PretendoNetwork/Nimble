@@ -16,98 +16,98 @@ int Screen_Y_Position = 0;
 
 void Screen_Initialize()
 {
-	OSScreenInit();
+    OSScreenInit();
 
-	Screen_BufferSizeTV = OSScreenGetBufferSizeEx(0);
-	Screen_BufferSizeDRC = OSScreenGetBufferSizeEx(1);
+    Screen_BufferSizeTV = OSScreenGetBufferSizeEx(0);
+    Screen_BufferSizeDRC = OSScreenGetBufferSizeEx(1);
 
-	OSScreenEnableEx(0, 1);
-	OSScreenEnableEx(1, 1);
+    OSScreenEnableEx(0, 1);
+    OSScreenEnableEx(1, 1);
 
     Screen_DRC_Buffer = Screen_TV_Buffer + Screen_BufferSizeDRC;
 
-	OSScreenSetBufferEx(0, Screen_TV_Buffer);
-	OSScreenSetBufferEx(1, Screen_DRC_Buffer);
+    OSScreenSetBufferEx(0, Screen_TV_Buffer);
+    OSScreenSetBufferEx(1, Screen_DRC_Buffer);
 
-	OSScreenClearBufferEx(0, COLOR_CONSTANT);
-	OSScreenClearBufferEx(1, COLOR_CONSTANT);
+    OSScreenClearBufferEx(0, COLOR_CONSTANT);
+    OSScreenClearBufferEx(1, COLOR_CONSTANT);
 
-	DCFlushRange(Screen_TV_Buffer, Screen_BufferSizeTV);
-	DCFlushRange(Screen_DRC_Buffer, Screen_BufferSizeDRC);
+    DCFlushRange(Screen_TV_Buffer, Screen_BufferSizeTV);
+    DCFlushRange(Screen_DRC_Buffer, Screen_BufferSizeDRC);
 
-	Screen_FlushBuffers();
+    Screen_FlushBuffers();
 
-	Screen_Y_Position = 0;
+    Screen_Y_Position = 0;
 }
 
 void Screen_Destroy()
 {
-	OSScreenShutdown();
+    OSScreenShutdown();
     for(int i = 0; i < 2; i++)
-	{
-	    OSScreenClearBufferEx(0, 0);
-	    OSScreenClearBufferEx(1, 0);
+    {
+        OSScreenClearBufferEx(0, 0);
+        OSScreenClearBufferEx(1, 0);
         OSScreenFlipBuffersEx(0);
         OSScreenFlipBuffersEx(1);
-	}
+    }
 }
 
 void Screen_DrawText(const char *text)
 {
-	for(int i = 0; i < 2; i++)
-	{
-		OSScreenPutFontEx(0, 0, Screen_Y_Position, text);		
-		OSScreenPutFontEx(1, 0, Screen_Y_Position, text);
-	}
-	Screen_Y_Position++;
+    for(int i = 0; i < 2; i++)
+    {
+        OSScreenPutFontEx(0, 0, Screen_Y_Position, text);		
+        OSScreenPutFontEx(1, 0, Screen_Y_Position, text);
+    }
+    Screen_Y_Position++;
 }
 
 void Screen_DrawTextLine(int line, const char *text)
 {
-	for(int i = 0; i < 2; i++)
-	{
-		OSScreenPutFontEx(0, 0, line, text);		
-		OSScreenPutFontEx(1, 0, line, text);
-	}
+    for(int i = 0; i < 2; i++)
+    {
+        OSScreenPutFontEx(0, 0, line, text);		
+        OSScreenPutFontEx(1, 0, line, text);
+    }
 }
 
 void Screen_DrawTextf(const char *text, ...)
 {
-	char *buf1 = (char*)malloc(0x800);
-	char *buf2 = (char*)malloc(0x800);
+    char *buf1 = (char*)malloc(0x800);
+    char *buf2 = (char*)malloc(0x800);
 
-	va_list va;
-	va_start(va, text);
+    va_list va;
+    va_start(va, text);
 
-	vsnprintf(buf1, 0x800, text, va);
-	snprintf(buf2, 0x800, "%s\n", buf1);
-	
-	Screen_DrawText((const char*)buf2);
+    vsnprintf(buf1, 0x800, text, va);
+    snprintf(buf2, 0x800, "%s\n", buf1);
+    
+    Screen_DrawText((const char*)buf2);
 
-	free(buf1);
-	free(buf2);
+    free(buf1);
+    free(buf2);
 
-	va_end(va);
+    va_end(va);
 }
 
 void Screen_FlushBuffers()
 {
-	OSScreenFlipBuffersEx(0);
-	OSScreenFlipBuffersEx(1);
+    OSScreenFlipBuffersEx(0);
+    OSScreenFlipBuffersEx(1);
 }
 
 void Screen_StartFrame()
 {
-	OSScreenClearBufferEx(0, COLOR_CONSTANT);
-	OSScreenClearBufferEx(1, COLOR_CONSTANT);
+    OSScreenClearBufferEx(0, COLOR_CONSTANT);
+    OSScreenClearBufferEx(1, COLOR_CONSTANT);
 
-	DCFlushRange(Screen_TV_Buffer, Screen_BufferSizeTV);
-	DCFlushRange(Screen_DRC_Buffer, Screen_BufferSizeDRC);
+    DCFlushRange(Screen_TV_Buffer, Screen_BufferSizeTV);
+    DCFlushRange(Screen_DRC_Buffer, Screen_BufferSizeDRC);
 
-	Screen_Y_Position = 0;
+    Screen_Y_Position = 0;
 }
 
 void Screen_EndFrame()
 {
-	Screen_FlushBuffers();
+    Screen_FlushBuffers();
 }
