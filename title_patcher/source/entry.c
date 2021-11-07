@@ -50,7 +50,6 @@ int _main(uint32_t ret_addr) {
     
     */
 
-
     LoadWiiUSymbols();
 
     uint64_t titleId = OSGetTitleID();
@@ -62,6 +61,34 @@ int _main(uint32_t ret_addr) {
     }
 
     Debugger_Start();
+
+    if(titleId == 0x000500101004a000
+        || titleId == 0x000500101004a100
+        || titleId == 0x000500101004a200)
+    {
+        int (*_SYSGetMiiStudioArgs)(int* r3);
+        uint32_t __rpl_sysapp;
+        OSDynLoad_Acquire("sysapp", &__rpl_sysapp);
+        OSDynLoad_FindExport(__rpl_sysapp, false, "_SYSGetMiiStudioArgs", (void**)&_SYSGetMiiStudioArgs);
+
+        int args[10];
+        memset(args, 0, sizeof(args));
+        _SYSGetMiiStudioArgs(args);
+
+        /* We're in Mii Maker to choose/create a Mii, do not start sd_loader, do the coreinit entry by ourselves */
+        if(args[4] == 2) {
+
+            uint32_t rpxEntry = *(uint32_t*)0x1005E040;
+            int rpxArgc = *(int*)0x10013C30;
+            char **rpxArgv = *(char***)0x10013C34;
+
+            int (*realGameEntry)(int argc, char **argv) = (int (*)(int argc, char **argv))rpxEntry;
+            void (*CafeOS_Exit)(int exitCode) = (void (*)(int))0x0101cdc4; 
+    
+            CafeOS_Exit(realGameEntry(rpxArgc, rpxArgv));
+    
+        }
+    }
 
     printf("\ntitle_patcher: 0x%016llx\n", titleId);
 
