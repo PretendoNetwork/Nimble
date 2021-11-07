@@ -28,6 +28,14 @@ extern void SC_KernelCopyData(void* dst, void* src, size_t size);
 extern void kern_write(void *addr, uint32_t value);
 extern uint32_t __OSGetTitleVersion();
 
+void set_syscalls(int id, uint32_t func) {
+    kern_write((void*)(0xFFE84C70 + (id * 4)), func);
+    kern_write((void*)(0xFFE85070 + (id * 4)), func);
+    kern_write((void*)(0xFFEAAA60 + (id * 4)), func);
+    kern_write((void*)(0xFFE85470 + (id * 4)), func);
+    kern_write((void*)(0xFFEAAE60 + (id * 4)), func);
+}
+
 /* !!!! Make sure the new URL legnth is equal or less than the original length !!!! */
 char original_url[] = "discovery.olv.nintendo.net/v1/endpoint";
 char new_url[] =      "discovery.olv.pretendo.cc/v1/endpoint";
@@ -92,24 +100,7 @@ int _main(uint32_t ret_addr) {
 
     printf("\ntitle_patcher: 0x%016llx\n", titleId);
 
-    /* Somehow, kern_write and kern_read aren't written in Internet Browser syscall table when using CBHC */
-    kern_write((void*)(0xFFE84C70 + (0x34 * 4)), 0xFFF023D4);
-    kern_write((void*)(0xFFE85070 + (0x34 * 4)), 0xFFF023D4);
-    kern_write((void*)(0xFFEAAA60 + (0x34 * 4)), 0xFFF023D4);
-    kern_write((void*)(0xFFE85470 + (0x34 * 4)), 0xFFF023D4);
-    kern_write((void*)(0xFFEAAE60 + (0x34 * 4)), 0xFFF023D4);
-
-    kern_write((void*)(0xFFE84C70 + (0x35 * 4)), 0xFFF023F4);
-    kern_write((void*)(0xFFE85070 + (0x35 * 4)), 0xFFF023F4);
-    kern_write((void*)(0xFFEAAA60 + (0x35 * 4)), 0xFFF023F4);
-    kern_write((void*)(0xFFE85470 + (0x35 * 4)), 0xFFF023F4);
-    kern_write((void*)(0xFFEAAE60 + (0x35 * 4)), 0xFFF023F4);
-
-    kern_write((void*)(0xFFE84C70 + (0x25 * 4)), (uint32_t)KernelCopyData);
-    kern_write((void*)(0xFFE85070 + (0x25 * 4)), (uint32_t)KernelCopyData);
-    kern_write((void*)(0xFFEAAA60 + (0x25 * 4)), (uint32_t)KernelCopyData);
-    kern_write((void*)(0xFFE85470 + (0x25 * 4)), (uint32_t)KernelCopyData);
-    kern_write((void*)(0xFFEAAE60 + (0x25 * 4)), (uint32_t)KernelCopyData);
+    /* When syscalls will be required for code patching, PLEASE, backup old syscall values then reset them at the end */
 
     printf("Applying global Miiverse patches\n");
 
