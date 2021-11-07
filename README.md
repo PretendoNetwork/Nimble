@@ -14,3 +14,7 @@ It's patching:
 // @ E1019F50
 int ssl_verify_cert_chain(SSL *s,STACK_OF(X509) *sk);
 ```
+
+## New Patch
+
+This merges the patches from [Inkay](https://github.com/PretendoNetwork/Inkay) into Nimble.
