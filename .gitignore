@@ -1,9 +1,0 @@
-build_files/
-build/
-
-arm_*.elf
-arm_*.bin
-arm_*_bin.h
-*.map
-
-iosu_payload/
