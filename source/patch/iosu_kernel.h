@@ -10,7 +10,6 @@
 //#include "link.ld" 
 //#include "../menu/MainComponents.h"
 extern "C" int IOSU_Kernel_Exploit();
-extern "C" int __entry();
 
 
  //void SC_KernelCopyData(void* dst, void* src, size_t size);
