@@ -5,6 +5,7 @@
 #include <coreinit/title.h>
 #include <sysapp/launch.h>
 #include <vpad/input.h>
+#include <sndcore2/core.h>
 
 #include "proc.hpp"
 #include <whb/log.h>
@@ -30,8 +31,7 @@ int main(int argc, char* args[])
 
     WHBLogPrint("Welcome to the Nimble patcher, provided by the Pretendo team");
     WHBLogPrint("The patcher will redirect Nintendo services to Pretendo");
-    WHBLogPrint("It will also apply per-game patches, you DO NOT have to use Inkay");
-    WHBLogPrint("Press A to install patches (NoSSL, per game patches etc..)");
+    WHBLogPrint("Press A to install patches (NoSSL etc..)");
     WHBLogPrint("Press B to exit");
 
     WHBLogConsoleDraw();
@@ -54,6 +54,7 @@ int main(int argc, char* args[])
     if (isChannel)
     {
         WHBLogPrintf("Is channel");
+        AXInit(); //I hate this, when aroma comes out it can be forgotten thooooo
     }
     else
     {
@@ -75,7 +76,7 @@ int main(int argc, char* args[])
                 if (isChannel)
                 {
                     WHBLogConsoleFree();
-                    WHBGfxInit(); //I hate that this works
+                    WHBGfxInit(); //I hate this too
                     SYSLaunchMenu();
                 }
                 else
@@ -121,6 +122,7 @@ int main(int argc, char* args[])
     }
     else
     {
+        AXQuit();
         WHBGfxShutdown();
     }
     WHBLogUdpDeinit();

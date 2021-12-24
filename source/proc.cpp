@@ -64,11 +64,6 @@ ProcInit()
 						   &procHomeButtonDenied, NULL, 100);
 }
 
-/*
-Note:
-Need to find out proper quitting for channels/.wuhbs without requiring the Home Button Menu
-*/
-
 void
 ProcShutdown()
 {
