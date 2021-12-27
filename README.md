@@ -1,8 +1,21 @@
 # RPX port of Nimble
 
-This makes the Nimble patcher an rpx.
+This port makes the Nimble patcher an rpx.
 
 ***Note:*** The patches from [Inkay](https://github.com/PretendoNetwork/Inkay) are ***not*** included in this version of Nimble.
 
-## Installation
-To install make sure you have `devkitPro`, `devkitPPC` and `wut` installed via the dkp-pacman package installer, then run `make` and you should get the file `nimble_patcher.rpx`.
+## Building
+
+
+### RPX
+To build the rpx, make sure you have `devkitPro`, `devkitPPC` and `wut` installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
+
+### Channel
+
+To create the channel version follow the same steps above to get `nimble_patcher.rpx`. Once done go to the folder named `code` inside the channel directory and place your rpx inside. Download NUSPacker.jar from [here](https://bitbucket.org/timogus/nuspacker/src/master/) and place it next to `channel` and create a folder named `WUP` in that same directory, afterwards run the following command in a terminal or cmd window (Replace the zeros with the Wii U common key)
+
+```shell
+java -jar NUSPacker.jar -in channel -out WUP -encryptKeyWith 00000000000000000000000000000000
+```
+
+Afterwards you may place the contents from the `WUP` folder into the `install` folder on your SD card and then install via WUP Installer.
