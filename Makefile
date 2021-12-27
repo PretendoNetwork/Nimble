@@ -99,14 +99,16 @@ all: $(BUILD)
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel/ -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user/ -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-
 #-------------------------------------------------------------------------------
+
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).elf
-
-
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_kernel -f  $(CURDIR)/arm_iosu_code/arm_kernel/Makefile clean
+	@$(MAKE) --no-print-directory -C $(CURDIR)/arm_iosu_code/arm_user -f  $(CURDIR)/arm_iosu_code/arm_user/Makefile clean
+	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).elf $(CURDIR)/source/iosu_payload/arm_kernel.h $(CURDIR)/source/iosu_payload/arm_user.h
 #---------------------------------------------------------------------------------
 else
 .PHONY:	all
