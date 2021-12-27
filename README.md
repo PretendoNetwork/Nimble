@@ -8,7 +8,7 @@ This port makes the Nimble patcher an rpx.
 
 
 ### RPX
-To build the rpx, make sure you have `devkitPro`, `devkitPPC`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
+To build the rpx, make sure you have `devkitPro`, `devkitPPC`, `devkitARM`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
 
 ### Channel
 
