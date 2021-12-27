@@ -1,22 +1,13 @@
 #ifndef __IOSU_MQ_EXP
 #define __IOSU_MQ_EXP
 
-//#include "symbols.h"
-//#include "bin.h"
-#include "iosu_payload/arm_user.h"
-#include "iosu_payload/arm_kernel.h"
+#include "../iosu_payload/arm_user.h"
+#include "../iosu_payload/arm_kernel.h"
 #include <stddef.h>
 #include <stdint.h>
-//#include "link.ld" 
-//#include "../menu/MainComponents.h"
 extern "C" int IOSU_Kernel_Exploit();
 
 
- //void SC_KernelCopyData(void* dst, void* src, size_t size);
- //void KernelCopyData(uint32_t dst, uint32_t src, size_t size);
- //void kern_write(void *addr, uint32_t value);
- //uint32_t get_section(uint8_t *data, char *name, uint32_t *size, uint32_t *addr);
- //uint8_t* install_section(uint8_t *data, char *name);
 #define USB_EndTextSection				0x101312D0
 #define USB_Memcpy						0x10106D4C // bl usb_memcpy; mov r0, #0; pop {r4, r5, pc};
 #define POP_R4_TO_R11_PC				0x101141C8 // pop {r4-r11, pc};

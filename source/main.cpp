@@ -31,8 +31,10 @@ int main(int argc, char* args[])
 
     WHBLogPrint("Welcome to the Nimble patcher, provided by the Pretendo team");
     WHBLogPrint("The patcher will redirect Nintendo services to Pretendo");
-    WHBLogPrint("Press A to install patches (NoSSL etc..)");
-    WHBLogPrint("Press B to exit");
+    WHBLogPrint("For Miiverse in game patches, you will need to run Inkay");
+    WHBLogPrint("via the WUPS loader.");
+    WHBLogPrint("\nPress A to install patches (NoSSL etc..)");
+    WHBLogPrint("\nPress B to exit");
 
     WHBLogConsoleDraw();
 
@@ -54,7 +56,8 @@ int main(int argc, char* args[])
     if (isChannel)
     {
         WHBLogPrintf("Is channel");
-        AXInit(); //I hate this, when aroma comes out it can be forgotten thooooo
+        AXInit(); 
+        // ^ I hate this, it's just an issue with the provided bootSound.btsnd in this repo. You can use another one and then repack via NUSPacker if you want.
     }
     else
     {
@@ -71,6 +74,8 @@ int main(int argc, char* args[])
             if (r == 0)
             {
                 WHBLogPrintf("Nimble patches succeeded!");
+
+                WHBLogConsoleDraw();
 
                 OSSleepTicks(OSTicksToMilliseconds(1500));
                 if (isChannel)
