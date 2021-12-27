@@ -8,7 +8,7 @@ This port makes the Nimble patcher an rpx.
 
 
 ### RPX
-To build the rpx, make sure you have `devkitPro`, `devkitPPC` and `wut` installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
+To build the rpx, make sure you have `devkitPro`, `devkitPPC`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
 
 ### Channel
 
@@ -19,3 +19,7 @@ java -jar NUSPacker.jar -in channel -out WUP -encryptKeyWith 0000000000000000000
 ```
 
 Afterwards you may place the contents from the `WUP` folder into the `install` folder on your SD card and then install via WUP Installer.
+
+### WUHB (Aroma)
+
+To build the wuhb, just follow the rpx building instructions but instead of running `make` run `make -f Makefile.Aroma`. You should get the file `nimble_patcher_aroma.wuhb`.
