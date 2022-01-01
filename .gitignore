@@ -1,0 +1,10 @@
+.vscode/
+
+**/build/
+
+*.bin
+*.bin.h
+*_syms.h
+*.elf
+*.rpx
+*.zip
