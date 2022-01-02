@@ -14,7 +14,7 @@ TOPDIR ?= $(CURDIR)
 # APP_AUTHOR sets the author of the application
 #-------------------------------------------------------------------------------
 APP_NAME		:=  Nimble Network Installer
-APP_SHORTNAME	:=  Nimble
+APP_SHORTNAME		:=  Nimble
 APP_AUTHOR		:=  Pretendo Network Team (RPX Port by: Fangal)
 
 include $(DEVKITPRO)/wut/share/wut_rules
@@ -34,14 +34,14 @@ include $(DEVKITPRO)/wut/share/wut_rules
 TARGET			:=	nimble_patcher
 BUILD			:=	build
 SOURCES			:=	source \
-							source/patch \
-							source/utils
+					source/patch \
+					source/utils
 DATA			:=	data
 INCLUDES		:=	include
 CONTENT			:=
-ICON			:=  meta/Aroma/icon.png
-TV_SPLASH		:=  meta/Aroma/tv-splash.png
-DRC_SPLASH		:=  meta/Aroma/drc-splash.png
+ICON			:=  	meta/Aroma/icon.png
+TV_SPLASH		:=  	meta/Aroma/tv-splash.png
+DRC_SPLASH		:=  	meta/Aroma/drc-splash.png
 
 #-------------------------------------------------------------------------------
 # options for code generation
@@ -100,7 +100,7 @@ endif
 
 export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES))
 export OFILES_SRC	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-export OFILES 	:=	$(OFILES_BIN) $(OFILES_SRC)
+export OFILES 		:=	$(OFILES_BIN) $(OFILES_SRC)
 export HFILES_BIN	:=	$(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
