@@ -36,13 +36,13 @@ CXXFLAGS	:= $(CFLAGS)
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-g $(ARCH) $(RPXSPECS) --entry=_start -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lwut
+LIBS	:= -lwut -liosuhax
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUT_ROOT)
+LIBDIRS	:= $(PORTLIBS) $(WUT_ROOT) $(WUT_ROOT)/usr/
 
 
 #-------------------------------------------------------------------------------
@@ -95,24 +95,15 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 #-------------------------------------------------------------------------------
 all: $(BUILD)
 
-$(BUILD): $(CURDIR)/source/ios_kernel/ios_kernel.bin.h
+$(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@$(MAKE) -j1 --no-print-directory -C $(CURDIR)/source/ios_kernel -f $(CURDIR)/source/ios_kernel/Makefile
-
-$(CURDIR)/source/ios_kernel/ios_kernel.bin.h: $(CURDIR)/source/ios_user/ios_user.bin.h
-	@$(MAKE) -j1 --no-print-directory -C $(CURDIR)/source/ios_kernel -f $(CURDIR)/source/ios_kernel/Makefile
-
-$(CURDIR)/source/ios_user/ios_user.bin.h:
-	@$(MAKE) -j1 --no-print-directory -C $(CURDIR)/source/ios_user -f $(CURDIR)/source/ios_user/Makefile
 
 
 #-------------------------------------------------------------------------------
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).elf
-	@$(MAKE) --no-print-directory -C $(CURDIR)/source/ios_kernel -f  $(CURDIR)/source/ios_kernel/Makefile clean
-	@$(MAKE) --no-print-directory -C $(CURDIR)/source/ios_user -f  $(CURDIR)/source/ios_user/Makefile clean
 
 #-------------------------------------------------------------------------------
 else
