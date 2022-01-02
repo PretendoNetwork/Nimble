@@ -1,25 +1,24 @@
-# RPX port of Nimble
+# NoSSL patch for the WiiU FW version 5.5.5
 
-This port makes the Nimble patcher an rpx.
+5.5.5 updated a verification callback in IOS-NSEC, so the function we were patching was shifted a bit.
+
+This code is the patch basically (it's a physical memory write):
+```C
+*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
+```
+
+It's patching:
+
+```C
+// OpenSSL 1.0.0f 4 Jan 2012
+// @ E1019F50
+int ssl_verify_cert_chain(SSL *s,STACK_OF(X509) *sk);
+```
 
 ***Note:*** The patches from [Inkay](https://github.com/PretendoNetwork/Inkay) are ***not*** included in this version of Nimble.
 
 ## Building
 
+### Makefile
+To build the rpx, make sure you have `devkitPro`, `devkitPPC`, `devkitARM`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`. For aroma users you can just use `nimble_patcher.wuhb`.
 
-### RPX
-To build the rpx, make sure you have `devkitPro`, `devkitPPC`, `devkitARM`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`.
-
-### Channel
-
-To create the channel version follow the same steps above to get `nimble_patcher.rpx`. Once done go to the folder named `code` inside the channel directory and place your rpx inside. Download NUSPacker.jar from [here](https://bitbucket.org/timogus/nuspacker/src/master/) and place it next to `channel` and create a folder named `WUP` in that same directory, afterwards run the following command in a terminal or cmd window (Replace the zeros with the Wii U common key)
-
-```shell
-java -jar NUSPacker.jar -in channel -out WUP -encryptKeyWith 00000000000000000000000000000000
-```
-
-Afterwards you may place the contents from the `WUP` folder into the `install` folder on your SD card and then install via WUP Installer.
-
-### WUHB (Aroma)
-
-To build the wuhb, just follow the rpx building instructions but instead of running `make` run `make -f Makefile.Aroma`. You should get the file `nimble_patcher_aroma.wuhb`.
