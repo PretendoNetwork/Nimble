@@ -5,7 +5,6 @@
 #include <coreinit/title.h>
 #include <sysapp/launch.h>
 #include <vpad/input.h>
-#include <sndcore2/core.h>
 
 #include "proc.hpp"
 #include <whb/log.h>
@@ -13,12 +12,12 @@
 #include <whb/log_console.h>
 #include <whb/gfx.h>
 
-#define COLOR_CONSTANT 0x632A5CFF
-
 #define HBL_TITLE_ID (0x0005000013374842)
 #define MII_MAKER_JPN_TITLE_ID (0x000500101004A000)
 #define MII_MAKER_USA_TITLE_ID (0x000500101004A100)
 #define MII_MAKER_EUR_TITLE_ID (0x000500101004A200)
+
+#define COLOR_CONSTANT 0x632A5CFF
 
 int main(int argc, char* args[])
 {
@@ -53,17 +52,6 @@ int main(int argc, char* args[])
         isChannel = false;
     }
 
-    if (isChannel)
-    {
-        WHBLogPrintf("Is channel");
-        AXInit(); 
-        // ^ I hate this, it's just an issue with the provided bootSound.btsnd in this repo. You can use another one and then repack via NUSPacker if you want.
-    }
-    else
-    {
-        WHBLogPrintf("Is not channel");
-    }
-
     while (ProcIsRunning())
     {
         VPADRead(VPAD_CHAN_0, &status, 1, &error);
@@ -81,7 +69,7 @@ int main(int argc, char* args[])
                 if (isChannel)
                 {
                     WHBLogConsoleFree();
-                    WHBGfxInit(); //I hate this too
+                    WHBGfxInit(); //I hate this
                     SYSLaunchMenu();
                 }
                 else
@@ -111,7 +99,7 @@ int main(int argc, char* args[])
             if (isChannel)
             {
                 WHBLogConsoleFree();
-                WHBGfxInit(); 
+                WHBGfxInit();
                 SYSLaunchMenu();
             }
             else
@@ -127,7 +115,6 @@ int main(int argc, char* args[])
     }
     else
     {
-        AXQuit();
         WHBGfxShutdown();
     }
     WHBLogUdpDeinit();
