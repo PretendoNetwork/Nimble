@@ -2,7 +2,6 @@
 
 #include <coreinit/thread.h>
 #include <coreinit/time.h>
-#include <coreinit/title.h>
 #include <sysapp/launch.h>
 #include <vpad/input.h>
 
@@ -11,11 +10,6 @@
 #include <whb/log_udp.h>
 #include <whb/log_console.h>
 #include <whb/gfx.h>
-
-#define HBL_TITLE_ID (0x0005000013374842)
-#define MII_MAKER_JPN_TITLE_ID (0x000500101004A000)
-#define MII_MAKER_USA_TITLE_ID (0x000500101004A100)
-#define MII_MAKER_EUR_TITLE_ID (0x000500101004A200)
 
 #define COLOR_CONSTANT 0x632A5CFF
 
@@ -40,18 +34,6 @@ int main(int argc, char* args[])
     VPADStatus status;
     VPADReadError error = VPAD_READ_SUCCESS;
 
-    uint64_t titleID = OSGetTitleID();
-
-    bool isChannel = true;
-
-    if (titleID == HBL_TITLE_ID ||
-        titleID == MII_MAKER_JPN_TITLE_ID ||
-        titleID == MII_MAKER_USA_TITLE_ID ||
-        titleID == MII_MAKER_EUR_TITLE_ID)
-    {
-        isChannel = false;
-    }
-
     while (ProcIsRunning())
     {
         VPADRead(VPAD_CHAN_0, &status, 1, &error);
@@ -66,15 +48,15 @@ int main(int argc, char* args[])
                 WHBLogConsoleDraw();
 
                 OSSleepTicks(OSTicksToMilliseconds(1500));
-                if (isChannel)
+                if (IsFromHBL())
+                {
+                    break;
+                }
+                else
                 {
                     WHBLogConsoleFree();
                     WHBGfxInit(); //I hate this
                     SYSLaunchMenu();
-                }
-                else
-                {
-                    break;
                 }
             }
             else
@@ -82,34 +64,34 @@ int main(int argc, char* args[])
                 WHBLogPrintf("Nimble patches failed.");
 
                 OSSleepTicks(OSTicksToMilliseconds(1500));
-                if (isChannel)
+                if (IsFromHBL())
+                {
+                    break;
+                }
+                else
                 {
                     WHBLogConsoleFree();
                     WHBGfxInit();
                     SYSLaunchMenu();
                 }
-                else
-                {
-                    break;
-                }
             }
         }
         else if (status.trigger & VPAD_BUTTON_B)
         {
-            if (isChannel)
+            if (IsFromHBL())
+            {
+                break;
+            }
+            else
             {
                 WHBLogConsoleFree();
                 WHBGfxInit();
                 SYSLaunchMenu();
             }
-            else
-            {
-                break;
-            }
         }
     }
 
-    if (!isChannel)
+    if (IsFromHBL())
     {
         WHBLogConsoleFree();
     }

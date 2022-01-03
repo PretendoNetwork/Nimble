@@ -95,3 +95,9 @@ ProcIsRunning()
 
 	return isRunning;
 }
+
+bool
+IsFromHBL()
+{
+	return fromHBL;
+}

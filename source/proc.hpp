@@ -15,3 +15,6 @@ ProcShutdown();
 
 bool
 ProcIsRunning();
+
+bool
+IsFromHBL();
