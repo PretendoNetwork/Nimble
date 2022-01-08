@@ -1,10 +1,10 @@
- #include "iosu_kernel.h"
+#include "iosu_kernel.h"
 #include "../utils/logger.h"
 #include <whb/file.h>
 #include <coreinit/thread.h>
-#include <coreinit/IOS.h>
-#include <coreinit/Cache.h>
-#include <coreinit/MemoryMap.h>
+#include <coreinit/ios.h>
+#include <coreinit/cache.h>
+#include <coreinit/memorymap.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
