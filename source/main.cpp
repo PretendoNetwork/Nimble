@@ -45,8 +45,6 @@ int main(int argc, char* args[])
             {
                 WHBLogPrintf("Nimble patches succeeded!");
 
-                WHBLogConsoleDraw();
-
                 OSSleepTicks(OSTicksToMilliseconds(1500));
                 if (IsFromHBL())
                 {
