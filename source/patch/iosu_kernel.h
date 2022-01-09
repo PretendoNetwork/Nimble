@@ -32,5 +32,4 @@ extern "C" int IOSU_Kernel_Exploit();
 #define CALC_STACK_OFFSET(dest, src, sp_offset)			(dest - (src + sp_offset + 0x170 + (8 * 0x04)))
 
 #endif
-int PatchConsole();
 

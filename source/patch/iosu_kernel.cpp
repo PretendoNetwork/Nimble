@@ -10,9 +10,6 @@
 #include <stdint.h>
 #include <string>
 
-extern "C" void kern_write(void *addr, uint32_t value); 
-extern "C" void SC_KernelCopyData(void* dst, void* src, size_t size);
-
 int USB_Write32(int fd, uint32_t *someOtherPointer, uint32_t addr, uint32_t value) {
 
     uint32_t input[2] = {0xFFF415D4, value};
