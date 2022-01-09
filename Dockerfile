@@ -1,4 +1,4 @@
-FROM quarktheawesome/devkitpro-arm-ppc:r56_r39
+FROM wiiuenv/devkitppc:20211229
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   xxd \

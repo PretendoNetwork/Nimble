@@ -14,3 +14,20 @@ It's patching:
 // @ E1019F50
 int ssl_verify_cert_chain(SSL *s,STACK_OF(X509) *sk);
 ```
+
+***Note:*** The patches from [Inkay](https://github.com/PretendoNetwork/Inkay) are ***not*** included in this version of Nimble.
+
+## Building
+
+### Makefile
+To build using make, make sure you have `devkitPro`, `devkitPPC`, `devkitARM`, `wut` and `vim` or `vim-common` (Depending on what OS you're running) installed via the dkp-pacman package manager. Run `make` in the same directory as `Makefile` and you should get the file `nimble_patcher.rpx`. For aroma users you can just use `nimble_patcher.wuhb`.
+
+### Dockerfile
+To build using docker, run the following commmands in the same directory as `Dockerfile`.
+
+```shell
+docker build . -t nimble
+docker run -it --rm -v ${PWD}:/app nimble
+```
+
+You should get the file `nimble_patcher.rpx`. For aroma users you can just use `nimble_patcher.wuhb`.

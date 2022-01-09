@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Nimble Network Installer</name>
+  <coder>Pretendo Network Team (RPX Port by: Fangal)</coder>
+  <version>1.0</version>
+  <release_date>1636261200</release_date>
+  <url>https://github.com/PretendoNetwork/Nimble</url>
+  <short_description>Wii U Nintendo Network Patches</short_description>
+<long_description>
+Pretendo Network Installer
+
+Only supports 5.5.0+ firmwares
+
+source code: https://github.com/PretendoNetwork/Nimble
+</long_description>
+<category>tool</category>
+
+</app>
