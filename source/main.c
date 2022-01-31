@@ -20,6 +20,8 @@
 #include <iosuhax.h>
 
 #include <vpad/input.h>
+#include <coreinit/mcp.h>
+#include "wut_extra.h"
 
 #include "patches.h"
 #include "log.h"
@@ -53,6 +55,10 @@ static void write_string(uint32_t addr, const char* str)
     }
 }
 
+static bool is555(MCP_SystemVersion version) {
+    return (version.major == 5) && (version.minor == 5) && (version.patch >= 5);
+}
+
 int main(int argc, char** argv)
 {
 #ifdef DEBUG
@@ -61,6 +67,23 @@ int main(int argc, char** argv)
 
     log("Hello world from Nimble!");
 
+    //get os version
+    MCP_SystemVersion os_version;
+    int mcp = MCP_Open();
+    int ret = MCP_GetSystemVersion(mcp, &os_version);
+    if (ret < 0) {
+        log("Nimble: getting system version failed (%d/%d)!", mcp, ret);
+        os_version = (MCP_SystemVersion) {
+            .major = 5, .minor = 5, .patch = 5, .region = 'E'
+        };
+    }
+    log("Nimble: Running on %d.%d.%d%c",
+        os_version.major, os_version.minor, os_version.patch, os_version.region
+    );
+
+    if (mcp >= 0) MCP_Close(mcp);
+
+    //check Gamepad input to maybe skip patches
     VPADStatus status;
     VPADReadError error = VPAD_READ_SUCCESS;
     VPADRead(VPAD_CHAN_0, &status, 1, &error);
@@ -73,7 +96,11 @@ int main(int argc, char** argv)
     {
         if (IOSUHAX_Open(NULL) >= 0) {
             /* NoSSL patch */
-            IOSUHAX_kern_write32(0xE1019F78, 0xE3A00001); // mov r0, #1
+            if (is555(os_version)) {
+                IOSUHAX_kern_write32(0xE1019F78, 0xE3A00001); // mov r0, #1
+            } else {
+                IOSUHAX_kern_write32(0xE1019E84, 0xE3A00001); // mov r0, #1
+            }
 
             /* URL patch */
             for (int i = 0; i < sizeof(url_patches) / sizeof(URL_Patch); i++) {
