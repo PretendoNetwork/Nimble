@@ -15,7 +15,6 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
 #include <string.h>
 #include <iosuhax.h>
 
@@ -25,12 +24,6 @@
 
 #include "patches.h"
 #include "log.h"
-
-uint32_t strlen_(const char* str) {
-    const char* s;
-    for (s = str; *s; ++s);
-    return (s - str);
-}
 
 //thanks @Gary#4139 :p
 static void write_string(uint32_t addr, const char* str)
