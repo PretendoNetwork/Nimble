@@ -20,10 +20,9 @@
 #include <iosuhax.h>
 
 #include <vpad/input.h>
-#include <whb/log.h>
-#include <whb/log_udp.h>
 
 #include "patches.h"
+#include "log.h"
 
 uint32_t strlen_(const char* str) {
     const char* s;
@@ -56,9 +55,11 @@ static void write_string(uint32_t addr, const char* str)
 
 int main(int argc, char** argv)
 {
+#ifdef DEBUG
     WHBLogUdpInit();
+#endif
 
-    WHBLogPrintf("Hello world from Nimble!");
+    log("Hello world from Nimble!");
 
     VPADStatus status;
     VPADReadError error = VPAD_READ_SUCCESS;
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
 
     if (status.hold & VPAD_BUTTON_ZL)
     {
-        WHBLogPrintf("Nimble patches skipped.");
+        log("Nimble patches skipped.");
     }
     else
     {
@@ -80,15 +81,17 @@ int main(int argc, char** argv)
             }
 
             IOSUHAX_Close();
-            WHBLogPrintf("Nimble patches succeeded!");
+            log("Nimble patches succeeded!");
         }
         else
         {
-            WHBLogPrintf("Nimble patches failed!");
+            log("Nimble patches failed!");
         }
     }
 
+#ifdef DEBUG
     WHBLogUdpDeinit();
+#endif
 
     return 0;
 }

@@ -26,7 +26,7 @@ INCLUDES	:=	include
 #-------------------------------------------------------------------------------
 # options for code generation
 #-------------------------------------------------------------------------------
-CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
+CFLAGS	:=	-Wall -O2 -ffunction-sections \
 			$(MACHDEP) -Wno-array-bounds -Wno-stringop-overflow
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__
@@ -35,6 +35,11 @@ CXXFLAGS	:= $(CFLAGS)
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-g $(ARCH) $(RPXSPECS) --entry=_start -Wl,-Map,$(notdir $*.map)
+
+ifeq ($(DEBUG),1)
+	CXXFLAGS += -DDEBUG -g
+	CFLAGS += -DDEBUG -g
+endif
 
 LIBS	:= -lwut -liosuhax
 
