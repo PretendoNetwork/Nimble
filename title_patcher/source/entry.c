@@ -6,6 +6,7 @@
 /* Include per-title headers here */
 
 #include "titles/Wii_U_Menu.h"
+#include "titles/Mario_Kart_8.h"
 
 /* ****************************** */
 
@@ -15,17 +16,34 @@ typedef struct TitlePatch {
     void (*m_PatchFunction)(uint32_t titleVer, uint64_t titleId);
 } TitlePatch;
 
+// clang-format off
 static TitlePatch titlePatches[] = {
-    { .m_TitleIDs = { WIIU_MENU_TID }, .m_Version = 0, .m_PatchFunction = Patch_Wii_U_Menu },
+    { .m_TitleIDs = { WIIU_MENU_TID },      .m_Version = 0, .m_PatchFunction = Patch_Wii_U_Menu },
+    { .m_TitleIDs = { MARIO_KART_8_TID },   .m_Version = 0, .m_PatchFunction = Patch_Mario_Kart_8 },
 };
+// clang-format on
 
 static size_t numTitlePatches = sizeof(titlePatches) / sizeof(TitlePatch);
 
 /* ****************************** */
 
 extern void SC_KernelCopyData(void* dst, void* src, size_t size);
-extern void kern_write(void* addr, uint32_t value);
 extern uint32_t __OSGetTitleVersion();
+
+extern void kern_write(void* addr, uint32_t value);
+extern uint32_t kern_read(const void* addr);
+
+void set_syscall(int id, uint32_t func) {
+    kern_write((void*)(0xFFE84C70 + (id * 4)), func);
+    kern_write((void*)(0xFFE85070 + (id * 4)), func);
+    kern_write((void*)(0xFFEAAA60 + (id * 4)), func);
+    kern_write((void*)(0xFFE85470 + (id * 4)), func);
+    kern_write((void*)(0xFFEAAE60 + (id * 4)), func);
+}
+
+uint32_t get_syscall(int id) {
+    return kern_read((void*)(0xFFE85070 + (id * 4)));
+}
 
 /* !!!! Make sure the new URL legnth is equal or less than the original length */
 char originalDiscoveryURL[] = "discovery.olv.nintendo.net/v1/endpoint";
@@ -47,9 +65,9 @@ int _main(uint32_t ret_addr) {
         the process:
 
 
-        // MEMGetBaseHeapHandle(1) == MEM2
-        if (MEMGetAllocatableSizeForExpHeapEx(MEMGetBaseHeapHandle(1), 4) <
-        0x4B390C ) { PanicCrash();
+        int mem2_handle = MEMGetBaseHeapHandle(1);
+        if (MEMGetAllocatableSizeForExpHeapEx(mem2_handle, 4) < 0x4B390C ) {
+            PanicCrash();
         }
 
 
@@ -70,7 +88,7 @@ int _main(uint32_t ret_addr) {
 
     /* The point of this block, is to check if we're in Mii Maker because we want to select or create a Mii
      * (for example, creating an account), if this is the case then skip HBL hook and start Mii Maker normally */
-    if (titleId == MII_MAKER_JAP || titleId == MII_MAKER_USA || titleId == MII_MAKER_JAP) {
+    if (titleId == MII_MAKER_JAP || titleId == MII_MAKER_USA || titleId == MII_MAKER_EUR) {
 
         uint32_t __rpl_sysapp;
         OSDynLoad_Acquire("sysapp", &__rpl_sysapp);
@@ -119,6 +137,10 @@ int _main(uint32_t ret_addr) {
 
     printf("Applying per game patches\n");
 
+    InitializePatcher();
+    uint32_t sc0x25_backup = get_syscall(0x25);
+    set_syscall(0x25, (uint32_t)KernelCopyData);
+
     /* For each title supported */
     for (size_t i = 0; i < numTitlePatches; i++) {
         /* For all 3 regions */
@@ -130,6 +152,8 @@ int _main(uint32_t ret_addr) {
             }
         }
     }
+
+    set_syscall(0x25, sc0x25_backup);
 
     printf("Exiting title_patcher\n");
 
