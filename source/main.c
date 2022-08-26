@@ -113,10 +113,9 @@ int main(int argc, char** argv)
         }
     }
 
+    log("Installing title patcher...");
     ret = install_title_patcher();
     if (ret < 0) {
-        log("Installed title patcher.");
-    } else {
         log("Title patcher install failed!");
     }
 
