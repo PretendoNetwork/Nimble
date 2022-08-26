@@ -14,5 +14,6 @@ void hook_enl_PiaUtil_ParseIdentificationToken(void* identificationInfo, sead_St
 }
 
 void Patch_Mario_Kart_8(uint32_t titleVer, uint64_t titleId) {
-    HOOK_FUNC(0x028E3930 + 0x0C180000, enl_PiaUtil_ParseIdentificationToken);
+    printf("MK8 patch is temporarily disabled pending debugging\n");
+    //HOOK_FUNC(0x028E3930 + 0x0C180000, enl_PiaUtil_ParseIdentificationToken);
 }
