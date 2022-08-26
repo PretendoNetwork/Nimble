@@ -24,6 +24,8 @@
 #include "wut_extra.h"
 
 #include "patches.h"
+#include "title_patcher.h"
+#include "syscalls.h"
 #include "log.h"
 
 //thanks @Gary#4139 :p
@@ -60,6 +62,7 @@ int main(int argc, char** argv)
 #endif
 
     log("Hello world from Nimble!");
+    KernelSetup();
 
     //get os version
     MCP_SystemVersion os_version;
@@ -108,6 +111,13 @@ int main(int argc, char** argv)
         {
             log("Nimble patches failed!");
         }
+    }
+
+    ret = install_title_patcher();
+    if (ret < 0) {
+        log("Installed title patcher.");
+    } else {
+        log("Title patcher install failed!");
     }
 
 #ifdef DEBUG
