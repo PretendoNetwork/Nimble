@@ -1,16 +1,18 @@
-# NoSSL patch for the WiiU FW version 5.5.5
+# Nimble - Tiramisu patches for Pretendo 
 
-5.5.5 updated a verification callback in IOS-NSEC, so the function we were patching was shifted a bit.
+[![Pretendo network logo](https://github.com/PretendoNetwork/website/raw/master/public/assets/images/opengraph/opengraph-image.png)](https://pretendo.network)
 
-This code is the patch basically (it's a physical memory write):
-```C
-*(uint32_t*)(0xE1019F78 - 0xE1000000 + 0x12BC0000) = 0xE3A00001;
-```
+Nimble is a Tiramisu setup module that patches various Nintendo Network URLs on a Wii U to use [Pretendo Network](https://pretendo.network) instead; as well as applying various in-game URL and security patches. It also (for the time being) bypasses SSL verification in most cases.
 
-It's patching:
+Nimble's in-game patches are equivalent to [Inkay](https://github.com/PretendoNetwork/Inkay)'s patches.
 
-```C
-// OpenSSL 1.0.0f 4 Jan 2012
-// @ E1019F50
-int ssl_verify_cert_chain(SSL *s,STACK_OF(X509) *sk);
-```
+## Dependencies
+
+The only supported configuration for Nimble is a console with Tiramisu and autoboot/coldboot. Aroma is untested at this time.
+
+## Safety
+
+Nimble's patches are all temporary, and only applied in-memory without modifying your console. The SSL patch, while also temporary, could reduce the overall security of your console while active - this is because it no longer checks if a server is verified. However, this does *not* apply to the Internet Browser, where SSL still works as expected.
+
+## TODO
+See [Issues](https://github.com/PretendoNetwork/Nimble/issues).
