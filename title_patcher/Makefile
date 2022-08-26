@@ -14,14 +14,6 @@ _PURPLE=\033[35m
 _CYAN=\033[36m
 _WHITE=\033[37m
 
-ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
-endif
-
-ifeq ($(filter $(DEVKITARM)/bin,$(PATH)),)
-export PATH:=$(DEVKITARM)/bin:$(PATH)
-endif
-
 #---------------------------------------------------------------------------------
 # Clear the implicit built in rules
 #---------------------------------------------------------------------------------
@@ -59,7 +51,7 @@ SOURCES		:=	source \
 DATA		:=	
 
 INCLUDES	:=  source
-CWD = "$(CURDIR)""
+CWD = "$(CURDIR)"
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -152,7 +144,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo -e "${_CYAN}Cleaning title_patcher${_END}"
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(OUTPUT)_bin.h
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).bin $(BUILD_DBG).elf $(OUTPUT).elf.h $(OUTPUT).elf.o
 
 #---------------------------------------------------------------------------------
 else
@@ -162,6 +154,7 @@ DEPENDS	:=	$(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
+$(OUTPUT).elf.o:
 $(OUTPUT).elf:  $(OFILES)
 
 #---------------------------------------------------------------------------------
@@ -171,8 +164,9 @@ $(OUTPUT).elf:  $(OFILES)
 	@echo -e "${_PURPLE}[LD]${_END}  Linking ${_CYAN}$(notdir $@)${_END}.."
 	$(Q)$(LD) -n -T $^ $(LDFLAGS) -o ../$(BUILD_DBG).elf  $(LIBPATHS) $(LIBS)
 	$(Q)$(OBJCOPY) -S -R .comment -R .gnu.attributes ../$(BUILD_DBG).elf $@
-	@cd $(CURDIR)/../ && xxd -i $(TARGET).elf | sed "s/unsigned/static const unsigned/g;s/$(TARGET)title_launcher_bin/$(TARGET)/g" > $(TARGET)_bin.h
-	@cd $(CURDIR)/../ && cp $(TARGET)_bin.h ../source/$(TARGET).h
+
+%.elf.o: %.elf
+	@bin2s -a 32 -H $<.h $< | $(AS) -o $(@)
 
 #---------------------------------------------------------------------------------
 %.a:
