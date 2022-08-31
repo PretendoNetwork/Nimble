@@ -4,11 +4,9 @@
 
 Nimble is a Tiramisu setup module that patches various Nintendo Network URLs on a Wii U to use [Pretendo Network](https://pretendo.network) instead; as well as applying various in-game URL and security patches. It also (for the time being) bypasses SSL verification in most cases.
 
-Nimble's in-game patches are equivalent to [Inkay](https://github.com/PretendoNetwork/Inkay)'s patches.
-
 ## Dependencies
 
-The only supported configuration for Nimble is a console with Tiramisu and autoboot/coldboot. Aroma is untested at this time.
+The only supported configuration for Nimble is a console with Tiramisu and autoboot/coldboot. For Aroma sytems, see [Inkay](https://github.com/PretendoNetwork/Inkay).
 
 ## Safety
 
