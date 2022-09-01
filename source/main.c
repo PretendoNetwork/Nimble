@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
     if (status.hold & VPAD_BUTTON_ZL)
     {
-        log("Nimble patches skipped.");
+        log("Nimble patches and title patcher install skipped.");
     }
     else
     {
@@ -111,12 +111,12 @@ int main(int argc, char** argv)
         {
             log("Nimble patches failed!");
         }
-    }
 
-    log("Installing title patcher...");
-    ret = install_title_patcher();
-    if (ret < 0) {
-        log("Title patcher install failed!");
+        log("Installing title patcher...");
+        ret = install_title_patcher();
+        if (ret < 0) {
+            log("Title patcher install failed!");
+        }
     }
 
 #ifdef DEBUG
